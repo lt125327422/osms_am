@@ -1,0 +1,615 @@
+package com.amazon.client;
+
+import com.amazon.test.testVO.DateUtils;
+import com.amazonaws.mws.MarketplaceWebServiceClient;
+import com.amazonaws.mws.MarketplaceWebServiceConfig;
+import com.amazonaws.mws.MarketplaceWebServiceException;
+import com.amazonaws.mws.model.*;
+
+import com.itecheasy.common.util.DeployProperties;
+import com.itecheasy.core.amazon.AmazonConfigInfo;
+import com.itecheasy.core.amazon.getReportResult.AmazonStockReportVO;
+import com.itecheasy.core.amazon.getReportResult.GetReportListResultVO;
+import com.itecheasy.core.amazon.getReportvo.GetReportListVO;
+import com.itecheasy.core.amazon.getReportResult.GetReportRequestListResultVO;
+import com.itecheasy.core.amazon.getReportResult.RequestReportResultVO;
+import com.itecheasy.core.amazon.getReportvo.GetReportRequestListVO;
+import com.itecheasy.core.amazon.getReportvo.RequestReportVO;
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
+
+import java.io.*;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+/**
+ * @Auther: liteng
+ * @Date: 2018/6/30 09:26
+ * @Description:
+ */
+public class AmazonReportClient {
+    private static final Logger LOGGER = Logger.getLogger(AmazonReportClient.class);
+    private static MarketplaceWebServiceClient client = null;
+    private static List<String> AMAZON_MARKETPLSCEID_LIST = null;
+    private static String AMAZON_SELLER_ID = null;
+    private static MarketplaceWebServiceConfig config = null;
+
+    private final static int MOCK = 0;
+    private final static int REAL_INVOKE = 1;
+    private static int IS_REAL_INVOKE =-1; //修改这个来用于判断是否真实调用亚马逊
+
+    private static String resultDerict ="";
+
+    public static void init(AmazonConfigInfo api,Integer shopId) {
+        IS_REAL_INVOKE = Integer.parseInt(DeployProperties.getInstance().getProperty("amazon.stock.report.invoke"));
+        resultDerict = DeployProperties.getInstance().getProperty("amazon.stock.stock.result");
+
+        //根据sellerId和shopId来分类文件夹
+        resultDerict+= api.getSellerID() + "/"+ api.getSellerID() + "/";
+
+        AMAZON_MARKETPLSCEID_LIST=Arrays.asList(api.getMarketplaceID().split(","));
+        AMAZON_SELLER_ID=api.getSellerID();
+
+        config = new MarketplaceWebServiceConfig();
+        config.setServiceURL(api.getServiceURL());
+        client = new MarketplaceWebServiceClient(api.getAccessKeyId(), api.getSecretAccessKey(),
+                DeployProperties.getInstance().getAppName(),DeployProperties.getInstance().getAppVersion(),config);
+    }
+
+
+    /**
+     * 读取文本为字符串，之后转化为一个的对象的集合
+     * @param
+     * @throws IOException
+     */
+    public static List<AmazonStockReportVO> fileOutputOriginalVersion(List<String> pathnameList,Integer shopId) throws IOException {
+        List<AmazonStockReportVO> reportFormList = new ArrayList<AmazonStockReportVO>(); //所有的报告
+        for (String pathName : pathnameList) {
+            InputStreamReader reader = new InputStreamReader(new FileInputStream(new File(pathName))); // 建立一个输入流对象reader
+            BufferedReader br = new BufferedReader(reader); // 建立一个对象，它把文件内容转成计算机能读懂的语言
+            String line = "";
+            line = br.readLine();    //读取第一行
+            Map<String, Integer> indexMap = getIndex(line);     //获取下标
+            line = br.readLine();   //第二行开始才是数据
+            while (line != null) {
+                String[] splitSingle = line.split("\t"); //取得每一行的每一个
+                List<String> single = Arrays.asList(splitSingle);
+                AmazonStockReportVO amazonStockReportVO = new AmazonStockReportVO();   //把每一行数据封装为一个vo
+                amazonStockReportVO.setSku(single.get(indexMap.get("sku")));
+                Date date = new Date();
+                amazonStockReportVO.setSyncLast(date);
+                amazonStockReportVO.setSyncFirst(date);
+                amazonStockReportVO.setAfnInboundWorkingQuantity(Integer.valueOf(single.get(indexMap.get("workingIndex"))));
+                amazonStockReportVO.setAfnWarehouseQuantity(Integer.valueOf(single.get(indexMap.get("warehouseIndex"))));
+                amazonStockReportVO.setAfnFulfillableQuantity(Integer.valueOf(single.get(indexMap.get("fulfillableIndex"))));
+                amazonStockReportVO.setAfnUnsellableQuantity(Integer.valueOf(single.get(indexMap.get("unsellableIndex"))));
+                amazonStockReportVO.setAfnInboundShippedQuantity(Integer.valueOf(single.get(indexMap.get("inboundShippedIndex"))));
+                amazonStockReportVO.setAfnReservedQuantity(Integer.valueOf(single.get(indexMap.get("reservedIndex"))));
+                amazonStockReportVO.setAfnInboundReceivingQuantity(Integer.valueOf(single.get(indexMap.get("receivingIndex"))));
+
+                amazonStockReportVO.setShopId(shopId);
+
+                //没有采用亚马逊返回的，而是自己算的
+                amazonStockReportVO.setAfnTotalQuantity(amazonStockReportVO.getAfnFulfillableQuantity() +
+                        amazonStockReportVO.getAfnInboundReceivingQuantity() + amazonStockReportVO.getAfnInboundShippedQuantity()
+                        + amazonStockReportVO.getAfnInboundWorkingQuantity() + amazonStockReportVO.getAfnReservedQuantity());
+
+                reportFormList.add(amazonStockReportVO);
+                line = br.readLine(); // 一次读入一行数据
+            }
+        }
+        return reportFormList;
+    }
+
+    /**
+     * 根据报告来过去对应字段的下标
+     * @param report
+     * @return
+     */
+    public static Map<String,Integer> getIndex(String report){
+        String[] splitRows = report.split("\r\n");  //根据换行符来分割，得到每行的数据
+        String[] splitRowFirst = splitRows[0].split("\t"); //取得每一行的每一个
+        List<String> singleFirst = Arrays.asList(splitRowFirst);
+        int sku = singleFirst.indexOf("sku");
+        int workingIndex = singleFirst.indexOf("afn-inbound-working-quantity");
+        int warehouseIndex = singleFirst.indexOf("afn-warehouse-quantity");
+        int fulfillableIndex = singleFirst.indexOf("afn-fulfillable-quantity");
+        int unsellableIndex = singleFirst.indexOf("afn-unsellable-quantity");
+        int inboundShippedIndex = singleFirst.indexOf("afn-inbound-shipped-quantity");
+        int reservedIndex = singleFirst.indexOf("afn-reserved-quantity");
+        int receivingIndex = singleFirst.indexOf("afn-inbound-receiving-quantity");
+
+        Map<String,Integer> indexMap = new HashMap<String, Integer>();
+        indexMap.put("sku",sku);
+        indexMap.put("workingIndex",workingIndex);
+        indexMap.put("warehouseIndex",warehouseIndex);
+        indexMap.put("fulfillableIndex",fulfillableIndex);
+        indexMap.put("unsellableIndex",unsellableIndex);
+        indexMap.put("inboundShippedIndex",inboundShippedIndex);
+        indexMap.put("reservedIndex",reservedIndex);
+        indexMap.put("receivingIndex",receivingIndex);
+        return indexMap;
+    }
+
+    /**
+     * 就是不知道用什么来分割，所以才写入了一行到文件中
+     *  SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+     * @param reportList
+     * @throws IOException
+     */
+    public static List<String> newFileOutput(List<String> reportList) throws IOException {
+        int s3 = 0;	//为了应付cpu速度过快的情况
+        String tempFilePath = DeployProperties.getInstance().getProperty("amazon.temp.filePath");
+        List<String> absolutePathList = new ArrayList<String>();
+        if (reportList!=null && reportList.size()>0) {
+            for (String report : reportList) {
+                File tempFile = new File(tempFilePath+"_cache_"+com.amazon.test.testVO.DateUtils.convertDate(new Date(), "yyyyMMddHHmmss")+s3+ ".txt");
+                FileUtils.touch(tempFile);
+                BufferedWriter bw = new BufferedWriter(new FileWriter(tempFile));
+                bw.write(report);
+                //                bw.newLine();   //写入一个行分隔符
+                bw.flush();
+                String absolutePath = tempFile.getAbsolutePath();
+                absolutePathList.add(absolutePath);
+                s3++;
+            }
+        }
+        return absolutePathList;
+    }
+
+    /**
+     * 把voList写入到结果
+     *
+     * @param vos
+     * @throws IOException
+     */
+    public static void fileOutput003(List<AmazonStockReportVO> vos) throws IOException {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String resultFilePath = DeployProperties.getInstance().getProperty("amazon.result.filePath");
+        BufferedWriter bw = new BufferedWriter(new FileWriter(new File(resultFilePath)));
+
+        //first line   headline
+        bw.write("sku"+"\t");
+        bw.write("shopId"+"\t");
+        bw.write("syncFirst"+"\t");
+        bw.write("syncLast"+"\t");
+        bw.write("AfnReservedQuantity"+"\t");
+        bw.write("AfnInboundWorkingQuantity"+"\t");
+        bw.write("AfnInboundShippedQuantity"+"\t");
+        bw.write("AfnInboundReceivingQuantity"+"\t");
+        bw.write("AfnFulfillableQuantity"+"\t");
+        bw.write("AfnWarehouseQuantity"+"\t");
+        bw.write("AfnUnsellableQuantity"+"\t");
+        bw.write("AfnTotalQuantity"+"\t");
+        bw.newLine();
+
+        for (AmazonStockReportVO amazonStockReportVO : vos) {
+            bw.write(amazonStockReportVO.getSku() + "\t" );
+            bw.write(amazonStockReportVO.getShopId()+"\t");
+            bw.write(format.format(amazonStockReportVO.getSyncFirst()) +"\t");
+            bw.write(format.format(amazonStockReportVO.getSyncLast()) +"\t");
+            bw.write(amazonStockReportVO.getAfnReservedQuantity() +"\t");
+            bw.write(amazonStockReportVO.getAfnInboundWorkingQuantity() +"\t");
+            bw.write(amazonStockReportVO.getAfnInboundShippedQuantity() +"\t");
+            bw.write(amazonStockReportVO.getAfnInboundReceivingQuantity() +"\t");
+            bw.write(amazonStockReportVO.getAfnFulfillableQuantity() +"\t");
+            bw.write(amazonStockReportVO.getAfnWarehouseQuantity() +"\t");
+            bw.write(amazonStockReportVO.getAfnUnsellableQuantity() +"\t");
+            bw.write(amazonStockReportVO.getAfnTotalQuantity() +"\t");
+//            bw.write(""+amazonStockReportVO.getFbaSeaTransit() +"\t");
+            bw.newLine();   //写入一个行分隔符
+            bw.flush();
+        }
+        bw.close();
+        System.out.println("the End of war");
+    }
+
+
+
+    public static List<String> getReportAllResult(RequestReportVO step1VO, AmazonConfigInfo api) throws MarketplaceWebServiceException, InterruptedException, IOException {
+        //step first   返回一个ReportRequestId
+        RequestReportResultVO step1Result = AmazonReportClient.requestReport(step1VO,api);
+
+        List<String> ids = new ArrayList<String>();
+        ids.add(step1Result.getReportRequestId());  //一个枚举对应一个id
+
+        //step 2
+        GetReportRequestListVO step2VO = new GetReportRequestListVO();
+        step2VO.setIds(ids);
+        GetReportRequestListResultVO reportRequest = AmazonReportClient.getReportRequestList(step2VO,api);
+
+        //收集step2.0
+        List<GetReportRequestListResultVO> allStep2Result = new ArrayList<GetReportRequestListResultVO>();
+        allStep2Result.add(reportRequest);
+
+        //step 2.1   考虑到返回nextToken的情况
+        boolean hasNext1 = reportRequest.isHasNext();
+        String token1 =reportRequest.getNextToken();
+        while (hasNext1){
+            GetReportRequestListResultVO step2_1Result = AmazonReportClient.getReportRequestListByNextToken(token1,api);
+            token1 = step2_1Result.getNextToken();
+            hasNext1 = step2_1Result.isHasNext();
+            allStep2Result.add(step2_1Result); //收集step3next
+        }
+
+        List<String> step3IdList = new ArrayList<String>();
+        List<String> genIdList = new ArrayList<String>();
+        for (GetReportRequestListResultVO step2Result : allStep2Result) {
+            if (step2Result!=null && step2Result.getReportRequestIdList().size()>0) {
+                step3IdList.addAll(step2Result.getReportRequestIdList());
+            }else if (step2Result!=null && step2Result.getGeneratedReportIdList().size()>0){
+                genIdList.addAll(step2Result.getGeneratedReportIdList());
+            }
+        }
+
+        //step 3   调用这个api是因为有些订单没有GeneratedReportId
+        //集合所有第二部的参数
+        List<String> step3Param = new ArrayList<String>(step3IdList);
+        GetReportListVO vo = new GetReportListVO();  //封装给step3调用
+        vo.setReportRequestIdList(step3Param);
+        GetReportListResultVO step3Result = AmazonReportClient.getReportList(vo,api);//调用amazon step3
+
+        //收集step3
+        List<String> allstep3_result = new ArrayList<String>(step3Result.getReportIdList());
+
+        //step 3.1   考虑到返回nextToken的情况
+        boolean hasNext = step3Result.isHasNext();
+        String token =step3Result.getNextToken();
+        while (hasNext){
+            GetReportListResultVO step3_1Result = AmazonReportClient.getReportListByNextToken(token,api);
+            token = step3_1Result.getNextToken();
+            hasNext = step3_1Result.isHasNext();
+            //收集step3next
+            allstep3_result.addAll(step3_1Result.getReportIdList());
+        }
+
+        allstep3_result.addAll(genIdList);
+
+        //生成报告
+        //step 2 和2.1的GeneratedReportId当为参数，或者step 3中生成的ReportId作为参数   最后要多次调用report
+        //step 4   如果有GeneratedReportId就可以直接生成报告了
+        List<String> lastReportPathList = new ArrayList<String>();
+
+        for (String lastParam : allstep3_result) {
+            lastReportPathList.add(AmazonReportClient.getReport(lastParam,api));
+            //md5校验，如果一直失败就发邮件
+        }
+
+        return lastReportPathList;  //还是字符串，没有被解析
+    }
+
+
+
+
+    /**
+     * step 1
+     * @param requestReportVO
+     * @return
+     */
+    public static RequestReportResultVO requestReport(RequestReportVO requestReportVO,AmazonConfigInfo api) throws MarketplaceWebServiceException {
+//        init(api);
+        RequestReportResultVO resultVO = new RequestReportResultVO();    //封装result
+
+        RequestReportRequest request = new RequestReportRequest();
+        request.setReportType(requestReportVO.getReportType());     //传入枚举类型
+        request.setMerchant(AMAZON_SELLER_ID);
+        final IdList marketplaces;
+        if (AMAZON_MARKETPLSCEID_LIST !=null && AMAZON_MARKETPLSCEID_LIST.size()>0) {
+            marketplaces = new IdList(AMAZON_MARKETPLSCEID_LIST);
+            request.setMarketplaceIdList(marketplaces);
+        }
+        if (requestReportVO.getStartDate()==null) {
+            request.setStartDate(com.amazon.test.testVO.DateUtils.getXMLGregorianCalendar(requestReportVO.getStartDate()));
+        }
+        if (requestReportVO.getEndDate()==null) {
+            request.setEndDate(com.amazon.test.testVO.DateUtils.getXMLGregorianCalendar(requestReportVO.getEndDate()));
+        }
+        //真实调用亚马逊
+        if(IS_REAL_INVOKE == REAL_INVOKE) {
+            RequestReportResponse response = client.requestReport(request);
+            ReportRequestInfo info = response.getRequestReportResult().getReportRequestInfo();
+
+            //ADD LOG
+            resultVO.setReportRequestId(info.getReportRequestId());
+//            resultVO.setEndDate(DateUtils.getDateByXMLGregorianCalendar(info.getEndDate()));
+        }else if (IS_REAL_INVOKE == MOCK){
+            //ADD LOG
+        }
+        return resultVO;
+    }
+
+    /**
+     *
+     *  step 2
+     *
+     * @param getReportRequestListVO
+     * @return
+     */
+    public static GetReportRequestListResultVO getReportRequestList(GetReportRequestListVO getReportRequestListVO,AmazonConfigInfo api) throws MarketplaceWebServiceException, InterruptedException {
+//        init(api);
+        GetReportRequestListRequest request = new GetReportRequestListRequest();
+        IdList ids = new IdList();
+        ids.setId(getReportRequestListVO.getIds());
+        request.setReportRequestIdList(ids);
+        request.setMerchant(AMAZON_SELLER_ID);
+
+        GetReportRequestListResultVO vo = new GetReportRequestListResultVO();
+        //是否要过滤请求
+        if(IS_REAL_INVOKE == REAL_INVOKE) {
+            Thread.sleep(23000);
+            GetReportRequestListResponse reportRequestList = client.getReportRequestList(request);
+            List<ReportRequestInfo> infoList = reportRequestList.getGetReportRequestListResult().getReportRequestInfoList();
+
+            vo = new GetReportRequestListResultVO();
+            vo.setHasNext(reportRequestList.getGetReportRequestListResult().isHasNext());
+            vo.setNextToken(reportRequestList.getGetReportRequestListResult().getNextToken());
+
+            List<String> reportRequestIdList = new ArrayList<String>();
+            List<String> generatedReportIdList = new ArrayList<String>();
+
+            for (ReportRequestInfo info : infoList) {
+                //对象封装回result
+                if (info.getReportProcessingStatus().equals("_DONE_")) {
+                    Thread.sleep(23000);
+                    return getReportRequestList(getReportRequestListVO, api);
+                }
+
+                if (info.getGeneratedReportId()!=null) {
+                    generatedReportIdList.add(info.getGeneratedReportId());
+                }else{
+                    reportRequestIdList.add(info.getReportRequestId());
+                }
+            }
+
+            vo.setReportRequestIdList(reportRequestIdList);
+            vo.setGeneratedReportIdList(generatedReportIdList);
+
+            //add log
+        }else if (IS_REAL_INVOKE == MOCK){
+
+            //add log
+        }
+
+        return vo;
+
+    }
+
+
+    /**
+     *
+     * step 3 如果没有GeneratedReportId   才调用这个方法
+     *
+     * @param api
+     */
+    public static GetReportListResultVO getReportList(GetReportListVO vo,AmazonConfigInfo api) throws MarketplaceWebServiceException, InterruptedException {
+//        init(api);
+        GetReportListRequest request = new GetReportListRequest();
+
+        IdList list = new IdList();
+        list.setId(vo.getReportRequestIdList());
+        request.setReportRequestIdList(list);
+        request.setMerchant(AMAZON_SELLER_ID);
+        GetReportListResultVO resultVO = new GetReportListResultVO();
+        if(IS_REAL_INVOKE == REAL_INVOKE) {
+            Thread.sleep(23000);
+            GetReportListResponse reportList = client.getReportList(request);
+            List<ReportInfo> reportInfoList = reportList.getGetReportListResult().getReportInfoList();
+
+            List<String> _reportIdList = new ArrayList<String>();
+            for (ReportInfo info : reportInfoList) {
+                _reportIdList.add(info.getReportId());
+            }
+            resultVO.setReportIdList(_reportIdList);
+        }else if (IS_REAL_INVOKE == MOCK){
+
+        }
+
+        return resultVO;
+    }
+
+
+    /**
+     *
+     * step 2.1
+     *
+     * @param
+     * @param nextToken
+     */
+    public static GetReportRequestListResultVO getReportRequestListByNextToken(String nextToken,AmazonConfigInfo api) throws MarketplaceWebServiceException, InterruptedException {
+//        init(api);
+        GetReportRequestListByNextTokenRequest request = new GetReportRequestListByNextTokenRequest();
+        request.setNextToken(nextToken);
+        request.setMerchant(AMAZON_SELLER_ID);
+        GetReportRequestListResultVO resultVO = new GetReportRequestListResultVO();
+        if(IS_REAL_INVOKE == REAL_INVOKE) {
+            Thread.sleep(23000);
+            GetReportRequestListByNextTokenResponse response = client.getReportRequestListByNextToken(request);
+
+            resultVO = new GetReportRequestListResultVO();
+            List<ReportRequestInfo> reportRequestInfoList = response.getGetReportRequestListByNextTokenResult().getReportRequestInfoList();
+            resultVO.setHasNext(response.getGetReportRequestListByNextTokenResult().isHasNext());
+            resultVO.setNextToken(response.getGetReportRequestListByNextTokenResult().getNextToken());
+
+            List<String> reportRequestIdList = new ArrayList<String>();
+            for (ReportRequestInfo info : reportRequestInfoList) {
+                reportRequestIdList.add(info.getReportRequestId());
+            }
+            resultVO.setReportRequestIdList(reportRequestIdList);
+
+            //add log
+        }else if(IS_REAL_INVOKE == MOCK){
+            //add log
+        }
+        return resultVO;
+    }
+
+    /**
+     *
+     *step 3.1
+     *
+     * @param api
+     * @param nextToken
+     */
+    public static GetReportListResultVO getReportListByNextToken(String nextToken,AmazonConfigInfo api) throws MarketplaceWebServiceException, InterruptedException {
+//        init(api);
+        GetReportListByNextTokenRequest request = new GetReportListByNextTokenRequest();
+        request.setNextToken(nextToken);
+        request.setMerchant(AMAZON_SELLER_ID);
+        GetReportListResultVO resultVO = new GetReportListResultVO();
+        if(IS_REAL_INVOKE == REAL_INVOKE) {
+            Thread.sleep(23000);
+            GetReportListByNextTokenResponse response = client.getReportListByNextToken(request);
+            List<ReportInfo> infoList = response.getGetReportListByNextTokenResult().getReportInfoList();
+            resultVO.setHasNext(response.getGetReportListByNextTokenResult().isHasNext());
+            resultVO.setNextToken(response.getGetReportListByNextTokenResult().getNextToken());
+
+            List<String> reportIdList = new ArrayList<String>();
+            for (ReportInfo info : infoList) {
+                reportIdList.add(info.getReportId());
+            }
+            resultVO.setReportIdList(reportIdList);
+        }else if(IS_REAL_INVOKE == MOCK){
+
+        }
+        return resultVO;
+    }
+
+
+    /**
+     *
+     * step 4 the end
+     *返回一个字符串
+     * @return checksum
+     * @throws MarketplaceWebServiceException
+     */
+    public static String getReport(String reportId,AmazonConfigInfo api) throws InterruptedException, MarketplaceWebServiceException, IOException {
+//        init(api);
+
+            GetReportRequest request = new GetReportRequest();
+            request.setReportId(reportId);
+            request.setMerchant(AMAZON_SELLER_ID);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            request.setReportOutputStream(baos);
+
+            //创建文件字节读取流对象时，必须明确与之关联的数据源。
+            Thread.sleep(23000);
+            GetReportResponse response = client.getReport(request);
+            byte[] bytes = baos.toByteArray();
+            File file = new File(resultDerict + DateUtils.convertDate(new Date(), "yyyyMMddHHmmss") + ".txt");
+            File excelFile = new File(resultDerict + DateUtils.convertDate(new Date(), "yyyyMMddHHmmss") + ".xls");
+
+            FileUtils.writeByteArrayToFile(file, bytes);
+            FileUtils.writeByteArrayToFile(excelFile,bytes);
+//            ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+//            Reader fileReader = new InputStreamReader(bais, "UTF-8");
+            String md5Checksum = response.getGetReportResult().getMD5Checksum();
+            return file.getAbsolutePath();
+    }
+
+
+
+
+
+
+    /**
+     * Calculate content MD5 header values for feeds stored on disk.
+     */
+    public static String computeContentMD5HeaderValue(FileInputStream fis)
+            throws IOException, NoSuchAlgorithmException {
+
+        DigestInputStream dis = new DigestInputStream( fis,
+                MessageDigest.getInstance( "MD5" ));
+
+        byte[] buffer = new byte[8192];
+        while( dis.read( buffer ) > 0 );
+
+        String md5Content = new String(
+                org.apache.commons.codec.binary.Base64.encodeBase64(
+                        dis.getMessageDigest().digest()) );
+
+        // Effectively resets the stream to be beginning of the file
+        // via a FileChannel.
+        fis.getChannel().position( 0 );
+
+        return md5Content;
+    }
+
+
+    /**
+     *
+     * md5效验    工具
+     * Consume the stream and return its Base-64 encoded MD5 checksum.
+     */
+    public static String computeContentMD5Header(InputStream inputStream) {
+        // Consume the stream to compute the MD5 as a side effect.
+        DigestInputStream s;
+        try {
+            s = new DigestInputStream(inputStream,
+                    MessageDigest.getInstance("MD5"));
+            // drain the buffer, as the digest is computed as a side-effect
+            byte[] buffer = new byte[8192];
+            while(s.read(buffer) > 0);
+            return new String(
+                    org.apache.commons.codec.binary.Base64.encodeBase64(
+                            s.getMessageDigest().digest()),
+                    "UTF-8");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    /**
+     *
+     * 解析报告   old edition
+     *
+     * @param report
+     * @return
+     */
+    public static List<AmazonStockReportVO> resolvingReport(String report){
+        List<AmazonStockReportVO> reportFormList = new ArrayList<AmazonStockReportVO>(); //所有的报告
+        String[] splitRows = report.split("\r\n");  //根据换行符来分割，得到每行的数据
+        if (splitRows.length>=2) {
+            String[] splitRowFirst = splitRows[0].split("\t"); //取得每一行的每一个
+            List<String> singleFirst = Arrays.asList(splitRowFirst);
+            int workingIndex = singleFirst.indexOf("afn-inbound-working-quantity");
+            int warehouseIndex = singleFirst.indexOf("afn-warehouse-quantity");
+            int fulfillableIndex = singleFirst.indexOf("afn-fulfillable-quantity");
+            int unsellableIndex = singleFirst.indexOf("afn-unsellable-quantity");
+            int inboundShippedIndex = singleFirst.indexOf("afn-inbound-shipped-quantity");
+            int reservedIndex = singleFirst.indexOf("afn-reserved-quantity");
+            int receivingIndex = singleFirst.indexOf("afn-inbound-receiving-quantity");
+            for (int i = 1; i < splitRows.length; i++) {
+                String[] splitSingle = splitRows[i].split("\t"); //取得每一行的每一个
+                List<String> single = Arrays.asList(splitSingle);
+                AmazonStockReportVO amazonStockReportVO = new AmazonStockReportVO();   //把每一行数据封装为一个vo
+                amazonStockReportVO.setSku(single.get(0));
+                amazonStockReportVO.setSyncLast(new Date());
+
+                amazonStockReportVO.setAfnInboundWorkingQuantity(Integer.valueOf(single.get(workingIndex)));
+                amazonStockReportVO.setAfnWarehouseQuantity(Integer.valueOf(single.get(warehouseIndex)));
+                amazonStockReportVO.setAfnFulfillableQuantity(Integer.valueOf(single.get(fulfillableIndex)));
+                amazonStockReportVO.setAfnUnsellableQuantity(Integer.valueOf(single.get(unsellableIndex)));
+                amazonStockReportVO.setAfnInboundShippedQuantity(Integer.valueOf(single.get(inboundShippedIndex)));
+                amazonStockReportVO.setAfnReservedQuantity(Integer.valueOf(single.get(reservedIndex)));
+                amazonStockReportVO.setAfnInboundReceivingQuantity(Integer.valueOf(single.get(receivingIndex)));
+
+                amazonStockReportVO.setAfnTotalQuantity(amazonStockReportVO.getAfnFulfillableQuantity() +
+                        amazonStockReportVO.getAfnInboundReceivingQuantity() + amazonStockReportVO.getAfnInboundShippedQuantity()
+                        + amazonStockReportVO.getAfnInboundWorkingQuantity() + amazonStockReportVO.getAfnReservedQuantity());
+                reportFormList.add(amazonStockReportVO);
+
+            }
+        }
+        return reportFormList;
+    }
+
+
+
+
+}

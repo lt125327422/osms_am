@@ -1,0 +1,50 @@
+package com.itecheasy.core.amazon;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.amazon.client.AmazonInboundClient;
+import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.model.CreateInboundShipmentResult;
+import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.model.InboundShipmentPlan;
+import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.model.InboundShipmentPlanList;
+import com.itecheasy.common.util.BeanUtils;
+import com.itecheasy.core.amazon.vo.AddressVO;
+import com.itecheasy.core.amazon.vo.InboundItemVO;
+import com.itecheasy.core.amazon.vo.InboundShipmentVO;
+
+/**
+ * @author taozihao
+ * @date 2018-6-6
+ * @version
+ */
+public class AmazonInboundWebServiceImpl implements AmazonInboundWebService {
+
+	@Override
+	public List<InboundShipmentVO> createInboundShipmentPlan(AmazonConfigInfo api, List<InboundItemVO> itemList,
+			AddressVO shipFromAddress, String shipToCountryCode) {
+		InboundShipmentPlanList planList = AmazonInboundClient.createInboundShipmentPlan(api, itemList, shipFromAddress,
+				shipToCountryCode);
+		List<InboundShipmentPlan> members = planList.getMember();
+		// 这是我自己封装的结果，方便返回个osms系统
+		List<InboundShipmentVO> list = new ArrayList<InboundShipmentVO>();
+		// 将拿到的结果集进行封装
+		for (InboundShipmentPlan member : members) {
+			InboundShipmentVO shipmentPlanResult = new InboundShipmentVO();
+			shipmentPlanResult.setDestinationFulfillmentCenterId(member.getDestinationFulfillmentCenterId());
+			//将商品项
+			shipmentPlanResult.setItems(BeanUtils.copyList(member.getItems().getMember(),InboundItemVO.class));
+			shipmentPlanResult.setLabelPrepType(member.getLabelPrepType());
+			shipmentPlanResult.setShipmentId(member.getShipmentId());
+			shipmentPlanResult.setShipToAddress(BeanUtils.copyProperties(member.getShipToAddress(), AddressVO.class));
+			list.add(shipmentPlanResult);
+		}
+		return list;
+	}
+
+	@Override
+	public String createInboundShipment(AmazonConfigInfo api, InboundShipmentVO inboundShipmentVO) {
+		CreateInboundShipmentResult result = AmazonInboundClient.createInboundShipment(api, inboundShipmentVO);
+		return result.getShipmentId();
+	}
+
+}

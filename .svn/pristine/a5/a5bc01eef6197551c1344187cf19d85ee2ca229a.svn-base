@@ -1,0 +1,24 @@
+package com.itecheasy.core.amazon.getReportResult;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @Auther: liteng
+ * @Date: 2018/7/2 09:44
+ * @Description:
+ */
+public class GetReportListVO {
+
+
+    List<String> idList = new ArrayList<String>();
+
+    public List<String> getIdList() {
+        return idList;
+    }
+
+    public void setIdList(List<String> idList) {
+        this.idList = idList;
+    }
+}
+

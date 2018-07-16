@@ -1,0 +1,39 @@
+package com.itecheasy.core.amazon.getReportResult;
+
+/**
+ * @Auther: liteng
+ * @Date: 2018/7/3 14:57
+ * @Description:
+ */
+public class GetReportListResultVO {
+
+    private String reportId;
+
+    private String nextToken;
+
+    private boolean hasNext;
+
+    public String getNextToken() {
+        return nextToken;
+    }
+
+    public void setNextToken(String nextToken) {
+        this.nextToken = nextToken;
+    }
+
+    public boolean isHasNext() {
+        return hasNext;
+    }
+
+    public void setHasNext(boolean hasNext) {
+        this.hasNext = hasNext;
+    }
+
+    public String getReportId() {
+        return reportId;
+    }
+
+    public void setReportId(String reportId) {
+        this.reportId = reportId;
+    }
+}

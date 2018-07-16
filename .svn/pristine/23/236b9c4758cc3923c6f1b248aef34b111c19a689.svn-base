@@ -1,0 +1,15 @@
+package com.itecheasy.core.amazon;
+
+import com.itecheasy.core.amazon.getReportResult.AmazonManagerStockResultVO;
+
+/**
+ * @Auther: liteng
+ * @Date: 2018/7/2 11:16
+ * @Description:
+ */
+public interface AmazonReportWebService {
+
+
+    AmazonManagerStockResultVO getReport();
+
+}

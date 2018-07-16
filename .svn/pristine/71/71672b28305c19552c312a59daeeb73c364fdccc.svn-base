@@ -1,0 +1,35 @@
+#AMAZON服务链接设置
+amazon.feedType=_POST_FLAT_FILE_LISTINGS_DATA_
+amazon.accessKeyId=AKIAIQTRLDH3SQFB3HSA
+amazon.secretAccessKey=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
+amazon.appName=osms
+amazon.appVersion=1
+amazon.SellerID=AJ11J3FSAZ6XV
+amazon.serviceURL=https://mws.amazonservices.com
+amazon.APISellerUserToken=
+amazon.MarketplaceID=ATVPDKIKX0DER
+
+#上传文件临时路径
+temp_file=c\:\\osms_am\\upload_file\\
+
+
+#请求间隔时间(单位:秒)
+Request.interval=30
+
+
+Seller account identifiers for PANDA JEWELRY INTERNATIONAL LIMITED
+Seller ID:	AJ11J3FSAZ6XV
+Marketplace ID:	ATVPDKIKX0DER
+Developer account identifier and credentials
+Developer Account Number:	6922-0905-3650
+AWS Access Key ID:	AKIAIQTRLDH3SQFB3HSA
+Secret Key:	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
+
+
+#0模拟，1真实调用亚马逊
+amazon.stock.report.invoke = 0
+
+#report
+amazon.result.filePath = D\:\\osms_am\\result_file\\
+#cache
+amazon.temp.filePath = D\:\\osms_am\\backup\\

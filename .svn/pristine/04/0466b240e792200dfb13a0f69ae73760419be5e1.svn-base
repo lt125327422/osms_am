@@ -1,0 +1,298 @@
+package com.amazon.client;
+
+import com.amazonaws.mws.MarketplaceWebServiceClient;
+import com.amazonaws.mws.MarketplaceWebServiceConfig;
+import com.amazonaws.mws.MarketplaceWebServiceException;
+import com.amazonaws.mws.model.*;
+import com.itecheasy.common.util.DateUtils;
+import com.itecheasy.common.util.DeployProperties;
+import com.itecheasy.core.amazon.AmazonConfigInfo;
+import com.itecheasy.core.amazon.getReportResult.GetReportListResultVO;
+import com.itecheasy.core.amazon.getReportvo.GetReportListVO;
+import com.itecheasy.core.amazon.getReportResult.GetReportRequestListResultVO;
+import com.itecheasy.core.amazon.getReportResult.RequestReportResultVO;
+import com.itecheasy.core.amazon.getReportvo.GetReportRequestListVO;
+import com.itecheasy.core.amazon.getReportvo.RequestReportVO;
+import org.apache.log4j.Logger;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * @Auther: liteng
+ * @Date: 2018/6/30 09:26
+ * @Description:
+ */
+public class AmazonReportClient {
+
+    private static final Logger LOGGER = Logger.getLogger(AmazonReportClient.class);
+
+    private static MarketplaceWebServiceClient client = null;
+
+
+    private static int MOCK = 0;
+    private static int REAL_INVOKE = 1;
+
+    private static int IS_REAL_INVOKE =-1; //修改这个来用于判断是否真实调用亚马逊
+
+    public AmazonReportClient() {
+        IS_REAL_INVOKE = 0;         //修改这个来用于判断是否真实调用亚马逊
+
+
+    }
+
+    /**
+     *
+     * 初始化
+     *
+     * @param api
+     */
+    public static void init(AmazonConfigInfo api) {
+        MarketplaceWebServiceConfig config = new MarketplaceWebServiceConfig();
+        config.setServiceURL(api.getServiceURL());
+        client = new MarketplaceWebServiceClient(api.getAccessKeyId(), api.getSecretAccessKey(),
+                DeployProperties.getInstance().getAppName(),DeployProperties.getInstance().getAppVersion(),config);
+
+    }
+
+    /**
+     * step 1
+     * @param requestReportVO
+     * @return
+     */
+    public static RequestReportResultVO requestReport(RequestReportVO requestReportVO,AmazonConfigInfo api) throws MarketplaceWebServiceException {
+        init(api);
+
+        RequestReportRequest request = new RequestReportRequest();
+        request.setReportType(requestReportVO.getReportType());     //传入枚举类型
+//        request.setStartDate(DateUtils.getXMLGregorianCalendar(requestReportVO.getStartDate()));
+//        封装request
+//        IdList ids = new IdList();
+//        request.setMarketplaceIdList(ids);
+        RequestReportResultVO resultVO = new RequestReportResultVO();    //封装result
+
+        //真实调用亚马逊
+        if(IS_REAL_INVOKE == REAL_INVOKE) {
+            RequestReportResponse response = client.requestReport(request);
+            ReportRequestInfo info = response.getRequestReportResult().getReportRequestInfo();
+
+            //ADD LOG
+            resultVO.setReportRequestId(info.getReportRequestId());
+//            resultVO.setEndDate(DateUtils.getDateByXMLGregorianCalendar(info.getEndDate()));
+        }else if (IS_REAL_INVOKE == MOCK){
+            //ADD LOG
+
+        }
+
+
+
+        return resultVO;
+    }
+
+    /**
+     *
+     *  step 2
+     *
+     * @param getReportRequestListVO
+     * @return
+     */
+    public static GetReportRequestListResultVO getReportRequestList(GetReportRequestListVO getReportRequestListVO,AmazonConfigInfo api) throws MarketplaceWebServiceException {
+        init(api);
+        GetReportRequestListRequest request = new GetReportRequestListRequest();
+        IdList ids = new IdList();
+        ids.setId(getReportRequestListVO.getIds());
+        request.setReportRequestIdList(ids);
+
+        GetReportRequestListResultVO vo = new GetReportRequestListResultVO();
+        //是否要过滤请求
+        if(IS_REAL_INVOKE == REAL_INVOKE) {
+            GetReportRequestListResponse reportRequestList = client.getReportRequestList(request);
+            List<ReportRequestInfo> infoList = reportRequestList.getGetReportRequestListResult().getReportRequestInfoList();
+
+            vo = new GetReportRequestListResultVO();
+            vo.setHasNext(reportRequestList.getGetReportRequestListResult().isHasNext());
+            vo.setNextToken(reportRequestList.getGetReportRequestListResult().getNextToken());
+
+            List<String> reportRequestIdList = new ArrayList<String>();
+            List<String> generatedReportIdList = new ArrayList<String>();
+
+            for (ReportRequestInfo info : infoList) {
+                //对象封装回result
+                reportRequestIdList.add(info.getReportRequestId());
+                generatedReportIdList.add(info.getGeneratedReportId());
+            }
+            vo.setReportRequestIdList(reportRequestIdList);
+            vo.setGeneratedReportIdList(generatedReportIdList);
+
+            //add log
+        }else if (IS_REAL_INVOKE == MOCK){
+
+            //add log
+        }
+
+        return vo;
+
+    }
+
+
+    /**
+     *
+     * step 3 如果没有GeneratedReportId   才调用这个方法
+     *
+     * @param api
+     */
+    public static GetReportListResultVO getReportList(GetReportListVO vo,AmazonConfigInfo api) throws MarketplaceWebServiceException {
+        init(api);
+        GetReportListRequest request = new GetReportListRequest();
+
+        IdList list = new IdList();
+        list.setId(vo.getReportRequestIdList());
+        request.setReportRequestIdList(list);
+        GetReportListResultVO resultVO = new GetReportListResultVO();
+        if(IS_REAL_INVOKE == REAL_INVOKE) {
+            GetReportListResponse reportList = client.getReportList(request);
+            List<ReportInfo> reportInfoList = reportList.getGetReportListResult().getReportInfoList();
+
+            List<String> _reportIdList = new ArrayList<String>();
+            for (ReportInfo info : reportInfoList) {
+                _reportIdList.add(info.getReportRequestId());
+            }
+            resultVO.setReportIdList(_reportIdList);
+
+
+        }else if (IS_REAL_INVOKE == MOCK){
+
+        }
+
+        return resultVO;
+    }
+
+
+    /**
+     *
+     * step 2.1
+     *
+     * @param
+     * @param nextToken
+     */
+    public static GetReportRequestListResultVO getReportRequestListByNextToken(String nextToken,AmazonConfigInfo api) throws MarketplaceWebServiceException {
+        init(api);
+        GetReportRequestListByNextTokenRequest request = new GetReportRequestListByNextTokenRequest();
+        request.setNextToken(nextToken);
+
+        GetReportRequestListResultVO resultVO = new GetReportRequestListResultVO();
+        if(IS_REAL_INVOKE == REAL_INVOKE) {
+            GetReportRequestListByNextTokenResponse response = client.getReportRequestListByNextToken(request);
+
+            resultVO = new GetReportRequestListResultVO();
+            List<ReportRequestInfo> reportRequestInfoList = response.getGetReportRequestListByNextTokenResult().getReportRequestInfoList();
+            resultVO.setHasNext(response.getGetReportRequestListByNextTokenResult().isHasNext());
+            resultVO.setNextToken(response.getGetReportRequestListByNextTokenResult().getNextToken());
+
+            List<String> reportRequestIdList = new ArrayList<String>();
+            for (ReportRequestInfo info : reportRequestInfoList) {
+                reportRequestIdList.add(info.getReportRequestId());
+            }
+            resultVO.setReportRequestIdList(reportRequestIdList);
+
+            //add log
+        }else if(IS_REAL_INVOKE == MOCK){
+            //add log
+        }
+        return resultVO;
+    }
+
+    /**
+     *
+     *step 3.1
+     *
+     * @param api
+     * @param nextToken
+     */
+    public static GetReportListResultVO getReportListByNextToken(String nextToken,AmazonConfigInfo api) throws MarketplaceWebServiceException {
+        init(api);
+        GetReportListByNextTokenRequest request = new GetReportListByNextTokenRequest();
+        request.setNextToken(nextToken);
+        GetReportListResultVO resultVO = new GetReportListResultVO();
+        if(IS_REAL_INVOKE == REAL_INVOKE) {
+            GetReportListByNextTokenResponse response = client.getReportListByNextToken(request);
+            List<ReportInfo> infoList = response.getGetReportListByNextTokenResult().getReportInfoList();
+            resultVO.setHasNext(response.getGetReportListByNextTokenResult().isHasNext());
+            resultVO.setNextToken(response.getGetReportListByNextTokenResult().getNextToken());
+
+            List<String> reportIdList = new ArrayList<String>();
+            for (ReportInfo info : infoList) {
+                reportIdList.add(info.getReportId());
+            }
+            resultVO.setReportIdList(reportIdList);
+        }else if(IS_REAL_INVOKE == MOCK){
+
+        }
+        return resultVO;
+    }
+
+
+    /**
+     *
+     * step 4 the end
+     *返回一个字符串
+     * @return
+     * @throws MarketplaceWebServiceException
+     */
+
+    public static String getReport(String reportId,AmazonConfigInfo api) throws MarketplaceWebServiceException {
+        init(api);
+        GetReportRequest request = new GetReportRequest();
+        request.setReportId(reportId);
+
+        GetReportResponse response = client.getReport(request);
+
+        //md5 校验不在这里
+        return response.getGetReportResult().getMD5Checksum();  //这个就是文档的内容
+    }
+
+
+//    public static String getReport(List<String> reportIdList,AmazonConfigInfo api) throws MarketplaceWebServiceException {
+//        init(api);
+//        GetReportRequest request = new GetReportRequest();
+//        request.setReportId(reportId);
+//
+//        GetReportResponse response = client.getReport(request);
+//
+//        //md5
+//        String md5Checksum = response.getGetReportResult().getMD5Checksum();
+//
+//        return null;
+//    }
+
+    /**
+     *
+     * md5效验    工具
+     * Consume the stream and return its Base-64 encoded MD5 checksum.
+     */
+    public static String computeContentMD5Header(InputStream inputStream) {
+        // Consume the stream to compute the MD5 as a side effect.
+        DigestInputStream s;
+        try {
+            s = new DigestInputStream(inputStream,
+                    MessageDigest.getInstance("MD5"));
+            // drain the buffer, as the digest is computed as a side-effect
+            byte[] buffer = new byte[8192];
+            while(s.read(buffer) > 0);
+            return new String(
+                    org.apache.commons.codec.binary.Base64.encodeBase64(
+                            s.getMessageDigest().digest()),
+                    "UTF-8");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+}
