@@ -1,0 +1,32 @@
+<component name="libraryTable">
+  <library name="activation">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/activation.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-beanutils-1.7.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-codec-1.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-httpclient-3.0.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-io-1.4.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-lang-2.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/commons-logging-1.1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/dom4j-1.6.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/FulfillmentInventory_2010-10-01_v2014-09-30.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/httpclient-4.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/httpcore-4.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/ite_amazon.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jackson-core-asl-1.9.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/jackson-mapper-asl-1.9.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/log4j-1.2.15.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/mail.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/MaWSJavaClientLibrary-1.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/MWSClientJavaRuntime-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/MWSInbound_2010-10-01_v2016-10-05.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/MWSOrders_2013-09-01_v2015-02-13.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/poi-3.9-20121203.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/poi-ooxml-3.9.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/poi-ooxml-schemas-3.9.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/slf4j-log4j12.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

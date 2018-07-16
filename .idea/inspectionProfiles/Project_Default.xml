@@ -1,0 +1,39 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="CriteriaApiResolveInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="ELDeferredExpressionsInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="ELMethodSignatureInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="ELSpecValidationInJSP" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="ELValidationInJSP" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="HibernateConfigDomFacetInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="JpaConfigDomFacetInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="JpaEntityListenerWarningsInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="JspAbsolutePathInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="JspTagBodyContent" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="JspUnescapedEl" enabled="false" level="ERROR" enabled_by_default="false" />
+    <inspection_tool class="MysqlParsingInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="SqlAddNotNullColumnInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="SqlAmbiguousColumnInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="SqlAutoIncrementDuplicateInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="SqlCheckUsingColumnsInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="SqlConstantConditionInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="SqlDeprecateTypeInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="SqlDerivedTableAliasInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="SqlDialectInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="SqlDropIndexedColumnInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="SqlIdentifierInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="SqlInsertValuesInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="SqlNoDataSourceInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="SqlNullComparisonInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="SqlPostgresqlSelectFromProcedureInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="SqlResolveInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="SqlShouldBeInGroupByInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="SqlSideEffectsInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="SqlSignatureInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="SqlStorageInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="SqlTypeInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="SqlUnusedVariableInspection" enabled="true" level="ERROR" enabled_by_default="true" />
+    <inspection_tool class="UnhandledExceptionInJSP" enabled="true" level="ERROR" enabled_by_default="true" />
+  </profile>
+</component>

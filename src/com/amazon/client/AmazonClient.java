@@ -1,0 +1,237 @@
+package com.amazon.client;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+
+import com.amazonaws.mws.MarketplaceWebServiceClient;
+import com.amazonaws.mws.MarketplaceWebServiceConfig;
+import com.amazonaws.mws.model.GetFeedSubmissionResultRequest;
+import com.amazonaws.mws.model.IdList;
+import com.amazonaws.mws.model.SubmitFeedRequest;
+import com.amazonaws.mws.samples.GetFeedSubmissionResultSample;
+import com.amazonaws.mws.samples.SubmitFeedSample;
+import com.amazonservices.mws.orders._2013_09_01.MarketplaceWebServiceOrdersClient;
+import com.amazonservices.mws.orders._2013_09_01.MarketplaceWebServiceOrdersConfig;
+import com.amazonservices.mws.orders._2013_09_01.model.GetOrderRequest;
+import com.amazonservices.mws.orders._2013_09_01.model.GetOrderResponse;
+import com.amazonservices.mws.orders._2013_09_01.model.ListOrderItemsRequest;
+import com.amazonservices.mws.orders._2013_09_01.model.ListOrderItemsResponse;
+import com.amazonservices.mws.orders._2013_09_01.model.ListOrderItemsResult;
+import com.amazonservices.mws.orders._2013_09_01.model.ListOrdersByNextTokenRequest;
+import com.amazonservices.mws.orders._2013_09_01.model.ListOrdersByNextTokenResponse;
+import com.amazonservices.mws.orders._2013_09_01.model.ListOrdersByNextTokenResult;
+import com.amazonservices.mws.orders._2013_09_01.model.ListOrdersRequest;
+import com.amazonservices.mws.orders._2013_09_01.model.ListOrdersResponse;
+import com.amazonservices.mws.orders._2013_09_01.model.ListOrdersResult;
+import com.amazonservices.mws.orders._2013_09_01.model.Order;
+import com.itecheasy.common.util.DateUtils;
+import com.itecheasy.common.util.DeployProperties;
+import com.itecheasy.core.amazon.AmazonConfigInfo;
+
+/**
+ * @author wanghw
+ * @date 2015-4-2
+ * @description TODO
+ * @version
+ */
+public class AmazonClient {
+	private final static Logger LOGGER =Logger.getLogger(AmazonClient.class);
+	private static List<String> AMAZON_MARKETPLSCEID_LIST = null;
+	private static String AMAZON_SELLER_ID = null;
+	private static MarketplaceWebServiceConfig config = null;
+	private static MarketplaceWebServiceClient service = null;
+	private static MarketplaceWebServiceOrdersClient client = null;
+
+//	static {
+//		config = new MarketplaceWebServiceConfig();
+//		config.setServiceURL(DeployProperties.getInstance().getServiceURL());
+//		service = new MarketplaceWebServiceClient(DeployProperties.getInstance().getAccessKeyId(), DeployProperties
+//				.getInstance().getSecretAccessKey(), DeployProperties.getInstance().getAppName(), DeployProperties
+//				.getInstance().getAppVersion(), config);
+//		config.setConnectionTimeout(1000*60*2);
+//		config.setSoTimeout(1000*60*2);
+//		if (client == null) {
+//			MarketplaceWebServiceOrdersConfig config = new MarketplaceWebServiceOrdersConfig();
+//			config.setServiceURL(DeployProperties.getInstance().getServiceURL());
+//			client = new MarketplaceWebServiceOrdersClient(DeployProperties.getInstance().getAccessKeyId(),
+//					DeployProperties.getInstance().getSecretAccessKey(), DeployProperties.getInstance().getAppName(),
+//					DeployProperties.getInstance().getAppVersion(), config);
+//		}
+//	}
+	
+	public static void init(AmazonConfigInfo api){
+		AMAZON_MARKETPLSCEID_LIST=Arrays.asList(api.getMarketplaceID().split(","));
+		AMAZON_SELLER_ID=api.getSellerID();
+		config = new MarketplaceWebServiceConfig();
+		config.setServiceURL(api.getServiceURL());
+		service = new MarketplaceWebServiceClient(api.getAccessKeyId(), api.getSecretAccessKey(),
+				DeployProperties.getInstance().getAppName(), DeployProperties
+				.getInstance().getAppVersion(), config);
+		config.setConnectionTimeout(1000*60*2);
+		config.setSoTimeout(1000*60*2);
+		
+		MarketplaceWebServiceOrdersConfig config = new MarketplaceWebServiceOrdersConfig();
+		config.setServiceURL(api.getServiceURL());
+		client = new MarketplaceWebServiceOrdersClient(api.getAccessKeyId(),
+				api.getSecretAccessKey(), DeployProperties.getInstance().getAppName(),
+				DeployProperties.getInstance().getAppVersion(), config);
+	}
+
+	public static String submitFeed(byte[] file,String uploadType,String fileType,AmazonConfigInfo api) throws Exception {
+		init(api);
+		String saveFile = DeployProperties.getInstance().getTempFile() + "request\\"+
+				fileType+ DateUtils.convertDate(new Date(), "yyyyMMddHHmmss") + ".txt";
+		File temp = new File(saveFile);
+		FileUtils.writeByteArrayToFile(temp, file);
+
+//		Xls2Csv.readExcel(path, saveFile);
+		SubmitFeedRequest request = new SubmitFeedRequest();
+		request.setMerchant(AMAZON_SELLER_ID);
+		final IdList marketplaces = new IdList(AMAZON_MARKETPLSCEID_LIST);
+		// request.setMWSAuthToken(sellerDevAuthToken);
+		request.setMarketplaceIdList(marketplaces);
+		request.setFeedType(uploadType);
+		request.setFeedContent(new FileInputStream(saveFile));
+
+		return SubmitFeedSample.invokeSubmitFeed(service, request);
+		// return null;
+	}
+	
+	public static String submitFeed2(String sfile,String uploadType,String fileType,AmazonConfigInfo api) throws Exception {
+		init(api);
+		String saveFile = DeployProperties.getInstance().getTempFile() + "request\\"+
+				fileType+ DateUtils.convertDate(new Date(), "yyyyMMddHHmmss") + ".txt";
+		
+		Xls2Csv.readExcel(sfile, saveFile,0);
+		SubmitFeedRequest request = new SubmitFeedRequest();
+		request.setMerchant(AMAZON_SELLER_ID);
+		final IdList marketplaces = new IdList(AMAZON_MARKETPLSCEID_LIST);
+		// request.setMWSAuthToken(sellerDevAuthToken);
+		request.setMarketplaceIdList(marketplaces);
+		request.setFeedType(uploadType);
+		request.setFeedContent(new FileInputStream(saveFile));
+
+		return SubmitFeedSample.invokeSubmitFeed(service, request);
+		// return null;
+	}
+
+	public static String getResultBySessionId(String sessionId,AmazonConfigInfo api) throws Exception {
+		init(api);
+		String pathDir = DeployProperties.getInstance().getTempFile() + "result\\";
+		String fileName = DateUtils.convertDate(new Date(), "yyyyMMddHHmmss") + "_" + sessionId + ".xml";
+		GetFeedSubmissionResultRequest request = new GetFeedSubmissionResultRequest();
+		request.setMerchant(AMAZON_SELLER_ID);
+		FileUtils.forceMkdir(new File(pathDir));
+		OutputStream processingResult = new FileOutputStream(pathDir + fileName);
+		request.setFeedSubmissionResultOutputStream(processingResult);
+		request.setFeedSubmissionId(sessionId);
+
+		GetFeedSubmissionResultSample.invokeGetFeedSubmissionResult(service, request);
+		return FileUtils.readFileToString(new File(pathDir + fileName));
+	}
+
+	public static ListOrdersResult getOrders(XMLGregorianCalendar createdAfter, XMLGregorianCalendar createdBefore,
+			XMLGregorianCalendar lastUpdatedAfter, XMLGregorianCalendar lastUpdatedBefore, List<String> orderStatus,
+			String sellerOrderId, String buyerEmail,AmazonConfigInfo api) {
+		
+		LOGGER.info("开始获取订单SellerID:"+api.getSellerID() + "MarketplaceID:"+api.getMarketplaceID() +  " ;" + lastUpdatedAfter);
+		init(api);
+		ListOrdersRequest request = new ListOrdersRequest();
+		request.setSellerId(AMAZON_SELLER_ID);
+		// request.setMWSAuthToken(mwsAuthToken);
+
+		request.setCreatedBefore(createdBefore);
+		request.setLastUpdatedAfter(lastUpdatedAfter);
+		request.setLastUpdatedBefore(lastUpdatedBefore);
+		request.setOrderStatus(orderStatus);
+		request.setMarketplaceId(AMAZON_MARKETPLSCEID_LIST);
+		request.setBuyerEmail(buyerEmail);
+		request.setSellerOrderId(sellerOrderId);
+//		List<String> fulfillmentChannels=Arrays.asList(new String[]{"MFN"});
+//		request.setFulfillmentChannel(fulfillmentChannels);
+//		Integer maxResultsPerPage = 100;//没有最多返回的订单数，默认100
+//		request.setMaxResultsPerPage(maxResultsPerPage);
+
+		try
+		{
+			ListOrdersResponse response = client.listOrders(request);
+			ListOrdersResult result = response.getListOrdersResult();
+			System.out.println(result.getOrders().size());
+			if (StringUtils.isNotEmpty(result.getNextToken())) { 
+				result.getOrders().addAll(getOrderSByNextToken(result.getNextToken()));
+			}
+	//		System.out.println(result.toJSON());
+			LOGGER.info(" get order total:"+result.getOrders().size());
+			return result;
+		}
+		catch(Exception ex)
+		{
+			LOGGER.error("请求亚马逊接口出错",ex);
+			throw new RuntimeException(ex);
+		}
+	}
+
+	public static List<Order> getOrderSByNextToken(String nextToken) {
+		try {
+			TimeUnit.SECONDS.sleep(30);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		// Create a request.
+		ListOrdersByNextTokenRequest request = new ListOrdersByNextTokenRequest();
+		LOGGER.info("get order by nextToken："+nextToken);
+		request.setSellerId(AMAZON_SELLER_ID);
+		// request.setMWSAuthToken(mwsAuthToken);
+		request.setNextToken(nextToken);
+		ListOrdersByNextTokenResponse response = client.listOrdersByNextToken(request);
+		ListOrdersByNextTokenResult result = response.getListOrdersByNextTokenResult();
+		System.out.println(result.getOrders().size());
+		if (StringUtils.isNotEmpty(result.getNextToken())) {
+			LOGGER.info("get order has nextToken："+nextToken);
+			result.getOrders().addAll(getOrderSByNextToken(result.getNextToken()));
+		}
+//		for (Order order : result.getOrders()) {
+//			try {
+//				Thread.sleep(Long.parseLong(DeployProperties.getInstance().getProperty("","30*1000")));
+//			} catch (NumberFormatException e) {
+//				e.printStackTrace();
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//			getOrderItems(order.getAmazonOrderId());
+//		}
+		return result.getOrders();
+	}
+
+	public static ListOrderItemsResult getOrderItems(String amazonOrderId) {
+		LOGGER.info("get order："+amazonOrderId+" : product   ");
+		ListOrderItemsRequest request = new ListOrderItemsRequest();
+		request.setSellerId(AMAZON_SELLER_ID);
+		request.setAmazonOrderId(amazonOrderId);
+		ListOrderItemsResponse response = client.listOrderItems(request);
+		return response.getListOrderItemsResult();
+	}
+
+	public static List<Order> getOrder(List<String> amazonOrderId,AmazonConfigInfo api) {
+		init(api);
+		GetOrderRequest request = new GetOrderRequest();
+		request.setSellerId(AMAZON_SELLER_ID);
+		// request.setMWSAuthToken(mwsAuthToken);
+		request.setAmazonOrderId(amazonOrderId);
+		GetOrderResponse response = client.getOrder(request);
+		System.out.println(response.getGetOrderResult().toJSON());
+		return response.getGetOrderResult().getOrders();
+	}
+}
