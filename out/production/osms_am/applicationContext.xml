@@ -31,9 +31,10 @@
 
 <!-- 	<bean id="SpringBeanUtils" class="com.amazon.test.SpringBeanUtils" ></bean> -->
 	<bean id="amazon" class="com.amazon.test.Amazon"></bean>
-	<bean id="amazonWebService" class="com.itecheasy.core.amazon.AmazonWebServiceImpl"></bean>
+
 
 	<bean id="test" class="com.amazon.test.TestImpl"></bean>
+
 	<jaxws:endpoint id="testWS" implementor="#test"
 		address="/osms_am.test">
 	</jaxws:endpoint>
@@ -52,5 +53,53 @@
 	<!--<jaxws:endpoint id="amazonReportWS" implementor="#amazonReportWebService"-->
 					<!--address="/osms_am.amazonReport">-->
 	<!--</jaxws:endpoint>-->
+
+	<bean id="baseOrder" class="com.itecheasy.core.amazon.isRealIvokeAmazon.Base" abstract="true">
+	</bean>
+
+	<bean id="mockIsRealGetStockReportFromAmazon"
+		  class="com.itecheasy.core.amazon.isRealIvokeAmazon.MockGetStockReportFromAmazonImpl" parent="baseOrder">
+	</bean>
+
+	<bean id="realGetStockReportFromAmazon"
+		  class="com.itecheasy.core.amazon.isRealIvokeAmazon.MockGetStockReportFromAmazonImpl" parent="baseOrder"/>
+
+
+	<bean id="mockListInboundShipments"
+		  class="com.itecheasy.core.amazon.isRealIvokeAmazon.MockListInboundShipmentsImpl" parent="baseOrder"/>
+
+	<bean id="realListInboundShipments"
+		  class="com.itecheasy.core.amazon.isRealIvokeAmazon.RealListInboundShipmentsImpl" parent="baseOrder"/>
+
+
+	<bean id="amazonWebService" class="com.itecheasy.core.amazon.AmazonWebServiceImpl" init-method="initInvokeGetStockFromAmazon">
+		<property name="isRealInvokeAmazonMap">
+			<map>
+				<entry key="mockGetStockReportFromAmazonBean" value-ref="mockIsRealGetStockReportFromAmazon"/>
+				<entry key="realGetStockReportFromAmazonBean" value-ref="realGetStockReportFromAmazon"/>
+			</map>
+		</property>
+		<property name="isRealListInboundShipmentsMap">
+			<map>
+				<entry key="mockListInboundShipmentsBean" value-ref="mockListInboundShipments"/>
+				<entry key="realListInboundShipmentsBean" value-ref="realListInboundShipments"/>
+			</map>
+		</property>
+	</bean>
+
+
+	<!-- 用于打印日志的参数和返回值 -->
+	<bean id="sysLogAspect" class="com.printMethod.LoggerNew"/>
+	<aop:config>
+		<aop:aspect ref="sysLogAspect">
+			<aop:pointcut expression="execution(* com.itecheasy.core.amazon..*.*(..)) and
+			 	@annotation(com.printMethod.annotations.LoggerNameDescription)" id="sysLogPointcut"/>
+			<aop:around method="around" pointcut-ref="sysLogPointcut"/>
+		</aop:aspect>
+	</aop:config>
+
+
+
+
 
 </beans>

@@ -21,11 +21,11 @@ import java.util.List;
  * @Date: 2018/7/14 16:34
  * @Description:
  */
-public class MockIsRealGetStockReportFromAmazonImpl implements IsRealGetStockReportFromAmazon {
+public class MockGetStockReportFromAmazonImpl implements IsRealGetStockReportFromAmazon {
 
     public static String mockTxt ;
 
-    public MockIsRealGetStockReportFromAmazonImpl(){
+    public MockGetStockReportFromAmazonImpl(){
          this.mockTxt = DeployProperties.getInstance().getProperty("mock.inputStream.file");
 
     }

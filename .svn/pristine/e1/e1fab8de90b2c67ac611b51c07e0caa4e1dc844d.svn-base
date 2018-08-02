@@ -1,0 +1,401 @@
+package com.itecheasy.core.amazon;
+
+import java.io.*;
+import java.text.MessageFormat;
+import java.util.*;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+
+import com.amazon.client.AmazonReportClient;
+import com.amazonaws.mws.MarketplaceWebServiceException;
+import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.model.*;
+import com.itecheasy.core.amazon.getReportResult.AmazonStockReportVO;
+import com.itecheasy.core.amazon.getReportvo.RequestReportVO;
+import com.itecheasy.core.amazon.isRealIvokeAmazon.Base;
+import com.itecheasy.core.amazon.isRealIvokeAmazon.MockListInboundShipmentsImpl;
+import com.itecheasy.core.amazon.vo.*;
+import org.apache.log4j.Logger;
+
+import com.amazon.client.AmazonClient;
+import com.amazon.client.AmazonInboundClient;
+import com.amazon.client.AmazonInventoryClient;
+import com.amazonservices.mws.FulfillmentInventory._2010_10_01.FBAInventoryServiceMWSClient;
+import com.amazonservices.mws.FulfillmentInventory._2010_10_01.model.InventorySupply;
+import com.amazonservices.mws.FulfillmentInventory._2010_10_01.model.InventorySupplyList;
+import com.amazonservices.mws.FulfillmentInventory._2010_10_01.model.ListInventorySupplyByNextTokenRequest;
+import com.amazonservices.mws.FulfillmentInventory._2010_10_01.model.ListInventorySupplyByNextTokenResponse;
+import com.amazonservices.mws.FulfillmentInventory._2010_10_01.model.ListInventorySupplyRequest;
+import com.amazonservices.mws.FulfillmentInventory._2010_10_01.model.ListInventorySupplyResponse;
+import com.amazonservices.mws.FulfillmentInventory._2010_10_01.model.SellerSkuList;
+import com.amazonservices.mws.orders._2013_09_01.model.ListOrderItemsResult;
+import com.amazonservices.mws.orders._2013_09_01.model.ListOrdersResult;
+import com.amazonservices.mws.orders._2013_09_01.model.Order;
+import com.amazonservices.mws.orders._2013_09_01.model.OrderItem;
+import com.itecheasy.common.util.BeanUtils;
+import com.itecheasy.common.util.CollectionUtils;
+import com.itecheasy.common.util.DateUtils;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.ContextLoader;
+
+/**
+ * @author wanghw
+ * @date 2015-4-2
+ * @description TODO
+ * @version
+ */
+public class AmazonWebServiceImpl extends Base implements AmazonWebService {
+
+    private final static Logger LOGGER=Logger.getLogger(AmazonWebServiceImpl.class);
+
+	AmazonWebServiceImpl(){
+	    super();
+	}
+
+	public void initInvokeGetStockFromAmazon(){
+//		ApplicationContext act = ContextLoader.getCurrentWebApplicationContext();
+//		this.isRealListInboundShipments = (MockListInboundShipmentsImpl)act.getBean("mockListInboundShipments");
+//		System.out.println("------------------");
+		if(IS_REAL_INVOKE == REAL_INVOKE){
+			this.isRealListInboundShipments = isRealListInboundShipmentsMap.get("realListInboundShipmentsBean");
+			this.isRealGetStockReportFromAmazon = isRealInvokeAmazonMap.get("realGetStockReportFromAmazonBean");
+		}else if (IS_REAL_INVOKE == MOCK) {
+			this.isRealListInboundShipments = isRealListInboundShipmentsMap.get("mockListInboundShipmentsBean");
+			this.isRealGetStockReportFromAmazon = isRealInvokeAmazonMap.get("mockGetStockReportFromAmazonBean");
+		}
+		System.out.println("初始化调用amazonBean完成");
+	}
+
+
+	@Override
+	public String getResultBySessionId(String sessionId,AmazonConfigInfo api) {
+		try {
+			return AmazonClient.getResultBySessionId(sessionId,api);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public String submitFeed(byte[] file, String ext,AmazonConfigInfo api) {
+		try {
+			return AmazonClient.submitFeed(file,"_POST_FLAT_FILE_LISTINGS_DATA_","_"+api.getTag()+"_UPLOAD_PRODUCT_",api);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	@Override
+	public List<OrderAmazon> getOrder(List<String> amazonOrderIds,AmazonConfigInfo api) {
+		List<Order> orders= AmazonClient.getOrder(amazonOrderIds,api);
+		if (CollectionUtils.isNotEmpty(orders)) {
+			List<OrderAmazon> orderAmazons=new ArrayList<OrderAmazon>();
+			for (Order order : orders) {
+				OrderAmazon orderAmazon = convert2Amazon(order);
+				List<OrderItem> items=AmazonClient.getOrderItems(order.getAmazonOrderId()).getOrderItems();
+				orderAmazon.setOrderItems(items);
+				orderAmazons.add(orderAmazon);
+			}
+			return orderAmazons;
+		}
+		return null;
+	}
+
+	@Override
+	public ListOrderItemsResult getOrderItems(String amazonOrderId,AmazonConfigInfo api) {
+		return AmazonClient.getOrderItems(amazonOrderId);
+	}
+
+	@Override
+	public ListOrdersResultAmazon getOrders(Date createdAfter, Date createdBefore,
+			Date lastUpdatedAfter, Date lastUpdatedBefore, List<String> orderStatus,
+			String sellerOrderId, String buyerEmail,AmazonConfigInfo api) {
+		orderStatus = new ArrayList<String>();
+		orderStatus.add("Unshipped");
+		orderStatus.add("PartiallyShipped");
+		orderStatus.add("Shipped");
+		orderStatus.add("Canceled");
+		if (lastUpdatedAfter==null) {
+//			lastUpdatedAfter=org.apache.commons.lang.time.DateUtils.addMinutes(new Date(), -16);
+			//判断时区，如果是北京时间，则转换成美国时间
+//			if("Asia/Shanghai".equals(Calendar.getInstance().getTimeZone().getID()))
+//				lastUpdatedAfter=org.apache.commons.lang.time.DateUtils.addHours(lastUpdatedAfter, -11);
+			
+		}
+		ListOrdersResult result= AmazonClient.getOrders(DateUtils.getXMLGregorianCalendar(createdAfter), 
+				DateUtils.getXMLGregorianCalendar(createdBefore), 
+				DateUtils.getXMLGregorianCalendar(lastUpdatedAfter), 
+				DateUtils.getXMLGregorianCalendar(lastUpdatedBefore), 
+				orderStatus,
+				sellerOrderId, buyerEmail,api);
+		if (result!=null) {
+			ListOrdersResultAmazon amazon=new ListOrdersResultAmazon();
+			if (result.getLastUpdatedBefore()!=null) {
+				amazon.setLastUpdatedBefore(result.getLastUpdatedBefore().toGregorianCalendar().getTime());
+			}
+			if (result.getCreatedBefore()!=null) {
+				amazon.setCreatedBefore(result.getCreatedBefore().toGregorianCalendar().getTime());
+			}
+			
+			if (CollectionUtils.isNotEmpty(result.getOrders())) {
+				List<OrderAmazon> orderAmazons=new ArrayList<OrderAmazon>();
+				for (Order order : result.getOrders()) {
+//					try {
+//						TimeUnit.SECONDS.sleep(Long.parseLong(DeployProperties.getInstance().getProperty("Request.interval","30")));
+//					} catch (NumberFormatException e) {
+//						e.printStackTrace();
+//					} catch (InterruptedException e) {
+//						e.printStackTrace();
+//					}
+					OrderAmazon orderAmazon = convert2Amazon(order);
+//					List<OrderItem> items=AmazonClient.getOrderItems(order.getAmazonOrderId()).getOrderItems();
+//					orderAmazon.setOrderItems(items);
+					orderAmazons.add(orderAmazon); 	
+				}
+				amazon.setOrders(orderAmazons);
+			}
+			LOGGER.info("get order end!");
+			return amazon;
+		}
+		 return null;
+	}
+
+	private OrderAmazon convert2Amazon(Order order) {
+		OrderAmazon orderAmazon=BeanUtils.copyProperties(order, OrderAmazon.class, 
+				new String[]{"purchaseDate","lastUpdateDate","earliestShipDate",
+			"latestShipDate","earliestDeliveryDate","latestDeliveryDate"});
+		orderAmazon.setPurchaseDate(order.getPurchaseDate()==null?null:order.getPurchaseDate().toGregorianCalendar().getTime());
+		orderAmazon.setLastUpdateDate(order.getLastUpdateDate()==null?null:order.getLastUpdateDate().toGregorianCalendar().getTime());
+		orderAmazon.setEarliestShipDate(order.getEarliestShipDate()==null?null:order.getEarliestShipDate().toGregorianCalendar().getTime());
+		orderAmazon.setLatestShipDate(order.getLatestShipDate()==null?null:order.getLatestShipDate().toGregorianCalendar().getTime());
+		orderAmazon.setEarliestDeliveryDate(order.getEarliestDeliveryDate()==null?null:order.getEarliestDeliveryDate().toGregorianCalendar().getTime());
+		orderAmazon.setLatestDeliveryDate(order.getLatestDeliveryDate()==null?null:order.getLatestDeliveryDate().toGregorianCalendar().getTime());
+		return orderAmazon;
+	}
+	
+	//_POST_FLAT_FILE_FULFILLMENT_DATA_ 文本文件--订单确认配送上传数据
+	public String uploadTraceCode(List<AmazonUploadTraceTemplate> templates,AmazonConfigInfo api){
+		String file=ExcelUtis.createConfirmOrderExcel(templates);
+		if (file!=null) {
+			try {
+				LOGGER.info("开始上传发货文件" + file);
+				String sessionId =  AmazonClient.submitFeed2(file, "_POST_FLAT_FILE_FULFILLMENT_DATA_", "_"+api.getTag()+"_CONFIRM_SHIPPING_",api);
+				
+				LOGGER.info(MessageFormat.format("上传发货文件{0}完成,返回SessionId为:{1}",file,sessionId));
+				return sessionId;
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+	
+	@Override
+	public String cancelOrder(List<CancelOrderBO> cancels,AmazonConfigInfo api) {
+		String file=ExcelUtis.createCancelOrderExcel(cancels);
+		if (file!=null) {
+			try {
+				return  AmazonClient.submitFeed2(file, "_POST_FLAT_FILE_ORDER_ACKNOWLEDGEMENT_DATA_", "_"+api.getTag()+"_CALCEL_ORDER_",api);
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+		
+	}
+
+	public static void main(String[] args) {
+		Calendar c=Calendar.getInstance();
+		System.out.println(c.getTimeZone().getID());
+	}
+
+	@Override
+	public listInventorysResult listInventorys(List<String> skus, Date startDate, boolean isDetail, AmazonConfigInfo api) {
+		FBAInventoryServiceMWSClient client=AmazonInventoryClient.getAsyncClient(api);
+		ListInventorySupplyRequest request = new ListInventorySupplyRequest();
+		request.setMarketplaceId(api.getMarketplaceID());
+		request.setSellerId(api.getSellerID());
+		
+		// 为您想知道库存供应情况的商品指定的卖家 SKU 列表。
+		if(CollectionUtils.isNotEmpty(skus)){
+			SellerSkuList sellerSkus = new SellerSkuList();
+			sellerSkus.setMember(skus);
+			request.setSellerSkus(sellerSkus);
+		}
+//		此日期用于选择您在某个指定日期后（或当时）已更改库存供应情况的商品，日期格式为 ISO 8601。
+		if(startDate!=null){
+			XMLGregorianCalendar queryStartDateTime = DateUtils.getXMLGregorianCalendar(DateUtils.convertDate("2016-12-01"));
+			request.setQueryStartDateTime(queryStartDateTime);
+		}
+		// ResponseGroup 值：
+		// Basic - 不包括响应中的 SupplyDetail 元素
+		// Detailed - 在响应中包含 SupplyDetail 元素
+		// 默认值：Basic
+		// String responseGroup = "example";
+		if(isDetail){
+			request.setResponseGroup("Detailed");
+		}
+		ListInventorySupplyResponse response = client.listInventorySupply(request);
+		if(response.getListInventorySupplyResult()!=null){
+			InventorySupplyList  pl=response.getListInventorySupplyResult().getInventorySupplyList();
+			if(pl!=null&&CollectionUtils.isNotEmpty(pl.getMember())){
+				listInventorysResult r=new listInventorysResult();
+				List<FbaInventory> fbas=new ArrayList<FbaInventory>();
+				r.setFbaInventorys(fbas);
+				r.setNextToken(response.getListInventorySupplyResult().getNextToken());
+				r.setSellerId(api.getSellerID());
+				
+				for (InventorySupply inv : pl.getMember()) {
+					FbaInventory fba=BeanUtils.copyProperties(inv, FbaInventory.class);
+					if(inv.getEarliestAvailability()!=null){
+						fba.setEarliestAvailabilityTimepointType(inv.getEarliestAvailability().getTimepointType());
+						fba.setEarliestAvailabilityDate(DateUtils.getDateByXMLGregorianCalendar(inv.getEarliestAvailability().getDateTime()));
+					}
+					fbas.add(fba);
+				}
+				return r;
+				
+			}
+		}
+		return null;
+	}
+	
+	@Override
+	public listInventorysResult listInventorysByNextToken(String nextToken, AmazonConfigInfo api) {
+		FBAInventoryServiceMWSClient client=AmazonInventoryClient.getAsyncClient(api);
+		ListInventorySupplyByNextTokenRequest request=new ListInventorySupplyByNextTokenRequest();
+		request.setNextToken(nextToken);
+		request.setMarketplace(api.getMarketplaceID());
+		request.setSellerId(api.getSellerID());
+		ListInventorySupplyByNextTokenResponse response=client.listInventorySupplyByNextToken(request);
+		if(response.getListInventorySupplyByNextTokenResult()!=null){
+			InventorySupplyList  pl=response.getListInventorySupplyByNextTokenResult().getInventorySupplyList();
+			if(pl!=null&&CollectionUtils.isNotEmpty(pl.getMember())){
+				listInventorysResult r=new listInventorysResult();
+				List<FbaInventory> fbas=new ArrayList<FbaInventory>();
+				r.setFbaInventorys(fbas);
+				r.setNextToken(response.getListInventorySupplyByNextTokenResult().getNextToken());
+				r.setSellerId(api.getSellerID());
+				
+				for (InventorySupply inv : pl.getMember()) {
+					FbaInventory fba=BeanUtils.copyProperties(inv, FbaInventory.class);
+					if(inv.getEarliestAvailability()!=null){
+						fba.setEarliestAvailabilityTimepointType(inv.getEarliestAvailability().getTimepointType());
+						fba.setEarliestAvailabilityDate(inv.getEarliestAvailability().getDateTime().toGregorianCalendar().getTime());
+					}
+				}
+				return r;
+				
+			}
+		}
+		return null;
+	}
+	
+	
+	
+	@Override
+	public List<InboundShipmentVO> createInboundShipmentPlan(AmazonConfigInfo api, List<InboundItemVO> itemList,
+			AddressVO shipFromAddress, String shipToCountryCode) {
+		InboundShipmentPlanList planList = AmazonInboundClient.createInboundShipmentPlan(api, itemList, shipFromAddress,
+				shipToCountryCode);
+		List<InboundShipmentPlan> members = planList.getMember();
+		// 这是我自己封装的结果，方便返回个osms系统
+		List<InboundShipmentVO> list = new ArrayList<InboundShipmentVO>();
+		// 将拿到的结果集进行封装
+		for (InboundShipmentPlan member : members) {
+			InboundShipmentVO shipmentPlanResult = new InboundShipmentVO();
+			shipmentPlanResult.setDestinationFulfillmentCenterId(member.getDestinationFulfillmentCenterId());
+			//将商品项
+			shipmentPlanResult.setItems(BeanUtils.copyList(member.getItems().getMember(),InboundItemVO.class));
+			shipmentPlanResult.setLabelPrepType(member.getLabelPrepType());
+			shipmentPlanResult.setShipmentId(member.getShipmentId());
+			shipmentPlanResult.setShipToAddress(BeanUtils.copyProperties(member.getShipToAddress(), AddressVO.class));
+			list.add(shipmentPlanResult);
+		}
+		return list;
+	}
+
+	@Override
+	public String createInboundShipment(AmazonConfigInfo api, InboundShipmentVO inboundShipmentVO) {
+		CreateInboundShipmentResult result = AmazonInboundClient.createInboundShipment(api, inboundShipmentVO);
+		return result.getShipmentId();
+	}
+
+
+	@Override
+	public String updateInboundShipment(AmazonConfigInfo api, InboundShipmentVO inboundShipmentVO) {
+		UpdateInboundShipmentResult result = AmazonInboundClient.updateInboundShipment(api,inboundShipmentVO);
+		return result.getShipmentId();
+	}
+
+
+	@Override
+	public String putTransportContent(AmazonConfigInfo api, TransportContentVO transportContentVO) {
+		TransportResult result = AmazonInboundClient.putTransportContent(api,transportContentVO);
+		return result.getTransportStatus();
+	}
+
+	@Override
+	public ListInboundShipmentsResultVO listInboundShipments(AmazonConfigInfo api, AmazonShipmentStatusListVO amazonShipmentStatusListVO) {
+		return this.isRealListInboundShipments.listInboundShipments(api, amazonShipmentStatusListVO);
+	}
+
+	@Override
+	public ListInboundShipmentsResultVO listInboundShipmentsByNextToken(AmazonConfigInfo api, AmazonShipmentStatusListVO amazonShipmentStatusListVO) {
+		return this.isRealListInboundShipments.listInboundShipmentsByNextToken(api, amazonShipmentStatusListVO);
+	}
+
+
+//
+	public List<AmazonStockReportVO> getReport(RequestReportVO step1VO, AmazonConfigInfo api){
+		try {
+            LOGGER.info("开始访问亚马逊获取报告-----------------------");
+
+            LOGGER.info("获取亚马逊reportStock step 0" +MAPPER.writeValueAsString(step1VO));
+            LOGGER.info("获取亚马逊reportStock step 000" +MAPPER.writeValueAsString(api));
+			//统一初始化	client   initialize
+			AmazonReportClient.init(api,step1VO.getShopId());
+            LOGGER.info("获取亚马逊reportStock step 1------初始化成功");
+
+			//调用6个亚马逊的api来获取报告 并且把亚马逊的流给保存为txt文件
+//			List<String> allAbsolutePath = AmazonReportClient.getReportAllResult(step1VO, api);
+			List<String> allAbsolutePath = this.isRealGetStockReportFromAmazon.getReportAllResult(step1VO, api);
+            LOGGER.info("获取亚马逊reportStock step2，读取了从亚马逊下载回的文件并转换为缓存成功" +allAbsolutePath);
+
+			//把多个报告写入到多个temp文件中,返回的是cache文件的路径
+//			List<String> backupFileOutput = AmazonReportClient.newFileOutput(reportAllResult);
+
+			//读取txt报告文件
+			List<AmazonStockReportVO> amazonStockReportVOS = AmazonReportClient.fileOutputOriginalVersion(allAbsolutePath,step1VO.getShopId());
+            LOGGER.info("\"获取亚马逊reportStock step3，读取了从亚马逊下载回的文件\"读取缓存文件并成功转换为VO对象，准备传输给OSMS" + MAPPER.writeValueAsString(amazonStockReportVOS));
+
+			//把vo写入result.txt文件中,用于备份
+			AmazonReportClient.fileOutput003(amazonStockReportVOS);
+			LOGGER.info("已完成---------------------获取亚马逊reportStock step4，根据解析的VOList备份文件，总共同步了"+amazonStockReportVOS.size()+"条报告");
+
+			//把voList返回给osms主系统
+			return amazonStockReportVOS;
+		} catch (InterruptedException e) {
+            LOGGER.error("sleep线程被中断，同步失败_店铺ID:"+step1VO.getShopId() +",sellerID:"+api.getSellerID());
+            e.printStackTrace();
+        } catch (IOException e) {
+            LOGGER.error("读取文件错误或备份失败，同步失败_店铺ID:"+step1VO.getShopId()+",sellerID:"+api.getSellerID());
+            e.printStackTrace();
+        }catch (MarketplaceWebServiceException e) {
+            LOGGER.error("与亚马逊的连接失败，调用亚马逊失败错误，同步失败_店铺ID:"+step1VO.getShopId()+",sellerID:"+api.getSellerID());
+            e.printStackTrace();
+        }catch (RuntimeException exp) {
+            LOGGER.error("未知异常错误，同步失败_店铺ID:"+step1VO.getShopId()+",sellerID:"+api.getSellerID());
+            exp.printStackTrace();
+        }
+        return null;
+	}
+
+
+
+}

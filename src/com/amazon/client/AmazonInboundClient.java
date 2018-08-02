@@ -4,12 +4,16 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.amazonaws.mws.MarketplaceWebServiceException;
+import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.FBAInboundServiceMWS;
 import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.model.*;
 
+import com.itecheasy.common.util.CollectionUtils;
 import com.itecheasy.common.util.DateUtils;
 import com.itecheasy.core.amazon.InboundShipmentInfoVO;
 import com.itecheasy.core.amazon.ListInboundShipmentsResultVO;
 import com.itecheasy.core.amazon.vo.*;
+import com.printMethod.annotations.LoggerNameDescription;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -45,6 +49,11 @@ public class AmazonInboundClient {
 
 	private static FBAInboundServiceMWSClient client = null;
 
+	protected final static int MOCK = 0;
+	protected final static int REAL_INVOKE = 1;
+	protected final static int IS_REAL_INVOKE =Integer.parseInt(DeployProperties.getInstance().getProperty("amazon.stock.report.invoke"));; //修改这个来用于判断是否真实调用亚马逊
+
+
 	public static void init(AmazonConfigInfo api) {
 		FBAInboundServiceMWSConfig config = new FBAInboundServiceMWSConfig();
 		config.setServiceURL(api.getServiceURL());
@@ -62,13 +71,12 @@ public class AmazonInboundClient {
 	 */
 	public static InboundShipmentPlanList createInboundShipmentPlan(AmazonConfigInfo api,List<InboundItemVO> itemList ,AddressVO shipFromAddress,String shipToCountryCode){
 		//掉方法之前事先初始化client
-		init(api);
+		init(api);//改为一个单独的工厂方法
+
 		LOGGER.info("创建补货计划-发往国家:" +shipToCountryCode+" 店铺webservice地址："+api.getServiceURL());
 		CreateInboundShipmentPlanRequest request = new CreateInboundShipmentPlanRequest();
-		
 		InboundShipmentPlanRequestItemList list = new InboundShipmentPlanRequestItemList();
 		list.setMember(BeanUtils.copyList(itemList, InboundShipmentPlanRequestItem.class));
-		
 		request.setInboundShipmentPlanRequestItems(list);
 		request.setMarketplace(api.getMarketplaceID());
 		//request.setMWSAuthToken(api.getAPISellerUserToken());
@@ -86,12 +94,13 @@ public class AmazonInboundClient {
 		//此处默认"SELLER_LABEL"
 		request.setLabelPrepPreference("SELLER_LABEL");
 		//try
-		CreateInboundShipmentPlanResponse response = client.createInboundShipmentPlan(request);
-		//return response.getCreateInboundShipmentPlanResult().getInboundShipmentPlans();
-		
-		//FBAInboundServiceMWSMock mwsMock = new FBAInboundServiceMWSMock();
-		//CreateInboundShipmentPlanResponse response = mwsMock.createInboundShipmentPlan(request);
-		
+		CreateInboundShipmentPlanResponse response = null;
+		if (IS_REAL_INVOKE==REAL_INVOKE){
+			 response = client.createInboundShipmentPlan(request);
+		}else if (IS_REAL_INVOKE==MOCK){
+			FBAInboundServiceMWSMock mwsMock = new FBAInboundServiceMWSMock();
+			response = mwsMock.createInboundShipmentPlan(request);
+		}
 		try {
 			String data = mapper.writeValueAsString(response.getCreateInboundShipmentPlanResult());
 			LOGGER.info("创建补货计划-亚马逊返回的数据："+data);
@@ -153,20 +162,19 @@ public class AmazonInboundClient {
 			e.printStackTrace();
 		}
 		//调用亚马逊接口
-		CreateInboundShipmentResponse response = client.createInboundShipment(request);
-		CreateInboundShipmentResult result = response.getCreateInboundShipmentResult();
-		
+		CreateInboundShipmentResponse response = null;
+		CreateInboundShipmentResult result = null;
+		if (IS_REAL_INVOKE == REAL_INVOKE){
+			response = client.createInboundShipment(request);
+			result = response.getCreateInboundShipmentResult();
+		}else if (IS_REAL_INVOKE == MOCK){
+			FBAInboundServiceMWSMock mwsMock = new FBAInboundServiceMWSMock();
+			result = new CreateInboundShipmentResult();
+			result.setShipmentId(request.getShipmentId());
+			response = mwsMock.createInboundShipment(request);
+			response.setCreateInboundShipmentResult(result);
+		}
 		//模拟调用
-//		FBAInboundServiceMWSMock mwsMock = new FBAInboundServiceMWSMock();
-//		CreateInboundShipmentResponse response = mwsMock.createInboundShipment(request);
-//		CreateInboundShipmentResponse response = new CreateInboundShipmentResponse();
-//		CreateInboundShipmentResult shipmentResult = new CreateInboundShipmentResult();
-//		shipmentResult.setShipmentId(request.getShipmentId());
-//		response.setCreateInboundShipmentResult(shipmentResult);
-//		CreateInboundShipmentResult result = response.getCreateInboundShipmentResult();
-
-
-
 		try {
 			String data = mapper.writeValueAsString(response.getCreateInboundShipmentResult());
 			LOGGER.info("创建补货订单-亚马逊返回："+data);
@@ -224,18 +232,24 @@ public class AmazonInboundClient {
 			e.printStackTrace();
 		}
 
-		//调用亚马逊接口
-//        UpdateInboundShipmentResponse response = client.updateInboundShipment(request);
-//        UpdateInboundShipmentResult result = response.getUpdateInboundShipmentResult();
+
 		//模拟调用
 //		FBAInboundServiceMWSMock mwsMock = new FBAInboundServiceMWSMock();
 //		CreateInboundShipmentResponse response = mwsMock.createInboundShipment(request);
 //		UpdateInboundShipmentResponse response = mwsMock.updateInboundShipment(request);
+		UpdateInboundShipmentResponse response = null;
+		UpdateInboundShipmentResult result = null;
+		if (IS_REAL_INVOKE == REAL_INVOKE){
+			//调用亚马逊接口
+			 response = client.updateInboundShipment(request);
+			 result = response.getUpdateInboundShipmentResult();
+		}else if (IS_REAL_INVOKE == MOCK){
+			response = new UpdateInboundShipmentResponse();
+			result = new UpdateInboundShipmentResult();
+			result.setShipmentId(request.getShipmentId());
+			response.setUpdateInboundShipmentResult(result);
+		}
 
-		UpdateInboundShipmentResponse response = new UpdateInboundShipmentResponse();
-		UpdateInboundShipmentResult result = new UpdateInboundShipmentResult();
-		result.setShipmentId(request.getShipmentId());
-		response.setUpdateInboundShipmentResult(result);
 		try {
 			String data = mapper.writeValueAsString(response.getUpdateInboundShipmentResult());
 			LOGGER.info("修改补货订单-亚马逊返回："+data);
@@ -243,6 +257,16 @@ public class AmazonInboundClient {
 			e.printStackTrace();
 		}
 		return result;
+	}
+
+
+
+	//
+	public static List<TransportResult> putTransportContent(AmazonConfigInfo api, List<TransportContentVO> transportContentVOList) {
+
+
+
+		return null;
 	}
 
 	public static TransportResult putTransportContent(AmazonConfigInfo api, TransportContentVO transportContentVO) {
@@ -285,13 +309,22 @@ public class AmazonInboundClient {
 		}
 
 		//调用亚马逊接口
-		PutTransportContentResponse response = client.putTransportContent(request);
-		PutTransportContentResult putTransportContentResult = response.getPutTransportContentResult();
+		PutTransportContentResponse response =null;
+		PutTransportContentResult result = null;
+		if (IS_REAL_INVOKE == REAL_INVOKE){
+			 response = client.putTransportContent(request);
+			result = response.getPutTransportContentResult();
+		}else if (IS_REAL_INVOKE == MOCK){
+			TransportResult transportResult = new TransportResult();
+			transportResult.setTransportStatus("test");
+			result = new PutTransportContentResult();
+			result.setTransportResult(transportResult);
+		}
 
-		return putTransportContentResult.getTransportResult();
+		return result.getTransportResult();
 	}
 
-
+	//封装完成
 	public static ListInboundShipmentsResultVO listInboundShipments(AmazonConfigInfo api, AmazonShipmentStatusListVO amazonShipmentStatusListVO){
 		init(api);	//掉方法之前事先初始化client
 
@@ -318,7 +351,7 @@ public class AmazonInboundClient {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			String string = mapper.writeValueAsString(request);
-			LOGGER.info("传过来了："+string);
+			LOGGER.info("订单跟踪号-准备提交给亚马逊："+string);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -342,12 +375,12 @@ public class AmazonInboundClient {
 
 
 
+	//分页的情况
 	public static ListInboundShipmentsResultVO listInboundShipmentsByNextToken(AmazonConfigInfo api,AmazonShipmentStatusListVO amazonShipmentStatusListVO) {
 		init(api);	//掉方法之前事先初始化client
 
 		ListInboundShipmentsByNextTokenRequest request = new ListInboundShipmentsByNextTokenRequest();
 		request.setNextToken(amazonShipmentStatusListVO.getNextToken());
-
 		request.setSellerId(api.getSellerID());
 //		request.setMarketplace(api.getMarketplaceID());
 
@@ -360,24 +393,27 @@ public class AmazonInboundClient {
 			e.printStackTrace();
 		}
 
-		ListInboundShipmentsByNextTokenResponse response = client.listInboundShipmentsByNextToken(request);
+		try {
+			ListInboundShipmentsByNextTokenResponse response = client.listInboundShipmentsByNextToken(request);
+			String nextToken = response.getListInboundShipmentsByNextTokenResult().getNextToken();
+			List<InboundShipmentInfo> orderDetailList = response.getListInboundShipmentsByNextTokenResult().getShipmentData().getMember();
+			if (orderDetailList==null){ //调用失败异常
+				return null;
+			}
 
-		String nextToken = response.getListInboundShipmentsByNextTokenResult().getNextToken();
-		List<InboundShipmentInfo> orderDetailList = response.getListInboundShipmentsByNextTokenResult().getShipmentData().getMember();
-
-		if (orderDetailList==null){ //调用失败异常
-			return null;
+			//把它有用的元素封装给vo，用于osms连接数据库来进行持久化
+			List<InboundShipmentInfoVO> listInboundShipmentsResultVOS = BeanUtils.copyList(orderDetailList, InboundShipmentInfoVO.class);
+			ListInboundShipmentsResultVO resultVO = new ListInboundShipmentsResultVO();
+			resultVO.setInboundShipmentInfoVOList(listInboundShipmentsResultVOS);
+			if (nextToken!=null) {
+				resultVO.setNextToken(nextToken);
+			}
+			return resultVO;
+		}catch (Exception e){
+			e.printStackTrace();
 		}
 
-		//把它有用的元素封装给vo，用于osms连接数据库来进行持久化
-		List<InboundShipmentInfoVO> listInboundShipmentsResultVOS = BeanUtils.copyList(orderDetailList, InboundShipmentInfoVO.class);
-		ListInboundShipmentsResultVO resultVO = new ListInboundShipmentsResultVO();
-		resultVO.setInboundShipmentInfoVOList(listInboundShipmentsResultVOS);
-		if (nextToken!=null) {
-			resultVO.setNextToken(nextToken);
-		}
-
-		return resultVO;
+		return null;
 	}
 
 

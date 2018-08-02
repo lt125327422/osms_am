@@ -34,7 +34,7 @@ import java.util.*;
  */
 public class AmazonReportClient {
     private static final Logger LOGGER = Logger.getLogger(AmazonReportClient.class);
-    private static MarketplaceWebServiceClient client = null;
+//    private static MarketplaceWebServiceClient client = null;
     private static List<String> AMAZON_MARKETPLSCEID_LIST = null;
     private static String AMAZON_SELLER_ID = null;
     private static MarketplaceWebServiceConfig config = null;
@@ -45,7 +45,7 @@ public class AmazonReportClient {
 
     private static String resultDerict ="";
 
-    public static void init(AmazonConfigInfo api,Integer shopId) {
+    public static MarketplaceWebServiceClient getClient(AmazonConfigInfo api) {
         IS_REAL_INVOKE = Integer.parseInt(DeployProperties.getInstance().getProperty("amazon.stock.report.invoke"));
         resultDerict = DeployProperties.getInstance().getProperty("amazon.stock.stock.result");
 
@@ -57,7 +57,7 @@ public class AmazonReportClient {
 
         config = new MarketplaceWebServiceConfig();
         config.setServiceURL(api.getServiceURL());
-        client = new MarketplaceWebServiceClient(api.getAccessKeyId(), api.getSecretAccessKey(),
+        return new MarketplaceWebServiceClient(api.getAccessKeyId(), api.getSecretAccessKey(),
                 DeployProperties.getInstance().getAppName(),DeployProperties.getInstance().getAppVersion(),config);
     }
 
@@ -338,7 +338,7 @@ public class AmazonReportClient {
      * @return
      */
     public static RequestReportResultVO requestReport(RequestReportVO requestReportVO,AmazonConfigInfo api) throws MarketplaceWebServiceException {
-//        init(api);
+
         RequestReportResultVO resultVO = new RequestReportResultVO();    //封装result
 
         RequestReportRequest request = new RequestReportRequest();
@@ -349,15 +349,15 @@ public class AmazonReportClient {
             marketplaces = new IdList(AMAZON_MARKETPLSCEID_LIST);
             request.setMarketplaceIdList(marketplaces);
         }
-        if (requestReportVO.getStartDate()==null) {
+        if (requestReportVO.getStartDate()!=null) {
             request.setStartDate(DateUtils.getXMLGregorianCalendar(requestReportVO.getStartDate()));
         }
-        if (requestReportVO.getEndDate()==null) {
+        if (requestReportVO.getEndDate()!=null) {
             request.setEndDate(DateUtils.getXMLGregorianCalendar(requestReportVO.getEndDate()));
         }
         //真实调用亚马逊
         if(IS_REAL_INVOKE == REAL_INVOKE) {
-            RequestReportResponse response = client.requestReport(request);
+            RequestReportResponse response = getClient(api).requestReport(request);
             ReportRequestInfo info = response.getRequestReportResult().getReportRequestInfo();
 
             //ADD LOG
@@ -388,7 +388,7 @@ public class AmazonReportClient {
         //是否要过滤请求
         if(IS_REAL_INVOKE == REAL_INVOKE) {
             Thread.sleep(23000);
-            GetReportRequestListResponse reportRequestList = client.getReportRequestList(request);
+            GetReportRequestListResponse reportRequestList = getClient(api).getReportRequestList(request);
             List<ReportRequestInfo> infoList = reportRequestList.getGetReportRequestListResult().getReportRequestInfoList();
 
             vo = new GetReportRequestListResultVO();
@@ -400,7 +400,7 @@ public class AmazonReportClient {
 
             for (ReportRequestInfo info : infoList) {
                 //对象封装回result
-                if (info.getReportProcessingStatus().equals("_DONE_")) {
+                if (!info.getReportProcessingStatus().equals("_DONE_")) {
                     Thread.sleep(23000);
                     return getReportRequestList(getReportRequestListVO, api);
                 }
@@ -443,7 +443,7 @@ public class AmazonReportClient {
         GetReportListResultVO resultVO = new GetReportListResultVO();
         if(IS_REAL_INVOKE == REAL_INVOKE) {
             Thread.sleep(23000);
-            GetReportListResponse reportList = client.getReportList(request);
+            GetReportListResponse reportList = getClient(api).getReportList(request);
             List<ReportInfo> reportInfoList = reportList.getGetReportListResult().getReportInfoList();
 
             List<String> _reportIdList = new ArrayList<String>();
@@ -474,7 +474,7 @@ public class AmazonReportClient {
         GetReportRequestListResultVO resultVO = new GetReportRequestListResultVO();
         if(IS_REAL_INVOKE == REAL_INVOKE) {
             Thread.sleep(23000);
-            GetReportRequestListByNextTokenResponse response = client.getReportRequestListByNextToken(request);
+            GetReportRequestListByNextTokenResponse response = getClient(api).getReportRequestListByNextToken(request);
 
             resultVO = new GetReportRequestListResultVO();
             List<ReportRequestInfo> reportRequestInfoList = response.getGetReportRequestListByNextTokenResult().getReportRequestInfoList();
@@ -509,7 +509,7 @@ public class AmazonReportClient {
         GetReportListResultVO resultVO = new GetReportListResultVO();
         if(IS_REAL_INVOKE == REAL_INVOKE) {
             Thread.sleep(23000);
-            GetReportListByNextTokenResponse response = client.getReportListByNextToken(request);
+            GetReportListByNextTokenResponse response = getClient(api).getReportListByNextToken(request);
             List<ReportInfo> infoList = response.getGetReportListByNextTokenResult().getReportInfoList();
             resultVO.setHasNext(response.getGetReportListByNextTokenResult().isHasNext());
             resultVO.setNextToken(response.getGetReportListByNextTokenResult().getNextToken());
@@ -544,7 +544,7 @@ public class AmazonReportClient {
 
             //创建文件字节读取流对象时，必须明确与之关联的数据源。
             Thread.sleep(23000);
-            GetReportResponse response = client.getReport(request);
+            GetReportResponse response = getClient(api).getReport(request);
             byte[] bytes = baos.toByteArray();
             File file = new File(resultDerict + DateUtils.convertDate(new Date(), "yyyyMMddHHmmss") + ".txt");
             File excelFile = new File(resultDerict + DateUtils.convertDate(new Date(), "yyyyMMddHHmmss") + ".xls");

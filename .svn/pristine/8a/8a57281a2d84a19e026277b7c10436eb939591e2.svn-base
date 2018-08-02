@@ -1,0 +1,400 @@
+package com.amazon.client;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import com.amazonaws.mws.MarketplaceWebServiceException;
+import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.model.*;
+
+import com.itecheasy.common.util.CollectionUtils;
+import com.itecheasy.common.util.DateUtils;
+import com.itecheasy.core.amazon.InboundShipmentInfoVO;
+import com.itecheasy.core.amazon.ListInboundShipmentsResultVO;
+import com.itecheasy.core.amazon.vo.*;
+import org.apache.log4j.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
+
+import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.FBAInboundServiceMWSClient;
+import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.FBAInboundServiceMWSConfig;
+import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.mock.FBAInboundServiceMWSMock;
+import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.model.Address;
+import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.model.CreateInboundShipmentPlanRequest;
+import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.model.CreateInboundShipmentPlanResponse;
+import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.model.CreateInboundShipmentRequest;
+import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.model.CreateInboundShipmentResponse;
+import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.model.CreateInboundShipmentResult;
+import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.model.InboundShipmentHeader;
+import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.model.InboundShipmentItem;
+import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.model.InboundShipmentItemList;
+import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.model.InboundShipmentPlanList;
+import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.model.InboundShipmentPlanRequestItem;
+import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.model.InboundShipmentPlanRequestItemList;
+import com.itecheasy.common.util.BeanUtils;
+import com.itecheasy.common.util.DeployProperties;
+import com.itecheasy.core.amazon.AmazonConfigInfo;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+
+/**
+ * @author taozihao
+ * @date 2018-6-6
+ * @description 亚马逊补货计划以及创建补货单
+ * @version
+ */
+public class AmazonInboundClient {
+	private static final Logger LOGGER = Logger.getLogger(AmazonInboundClient.class);
+
+	private static FBAInboundServiceMWSClient client = null;
+
+	protected final static int MOCK = 0;
+	protected final static int REAL_INVOKE = 1;
+	protected final static int IS_REAL_INVOKE =Integer.parseInt(DeployProperties.getInstance().getProperty("amazon.stock.report.invoke"));; //修改这个来用于判断是否真实调用亚马逊
+
+
+	public static void init(AmazonConfigInfo api) {
+
+		FBAInboundServiceMWSConfig config = new FBAInboundServiceMWSConfig();
+		config.setServiceURL(api.getServiceURL());
+		client = new FBAInboundServiceMWSClient(api.getAccessKeyId(), api.getSecretAccessKey(),
+				DeployProperties.getInstance().getAppName(), DeployProperties.getInstance().getAppVersion(), config);
+	}
+	
+	/**
+	 * 创建fba补货计划
+	 * @param api
+	 * @param itemList
+	 * @param shipFromAddress
+	 * @param shipToCountryCode
+	 * @return
+	 */
+	public static InboundShipmentPlanList createInboundShipmentPlan(AmazonConfigInfo api,List<InboundItemVO> itemList ,AddressVO shipFromAddress,String shipToCountryCode){
+		//掉方法之前事先初始化client
+		init(api);
+		LOGGER.info("创建补货计划-发往国家:" +shipToCountryCode+" 店铺webservice地址："+api.getServiceURL());
+		CreateInboundShipmentPlanRequest request = new CreateInboundShipmentPlanRequest();
+		
+		InboundShipmentPlanRequestItemList list = new InboundShipmentPlanRequestItemList();
+		list.setMember(BeanUtils.copyList(itemList, InboundShipmentPlanRequestItem.class));
+		
+		request.setInboundShipmentPlanRequestItems(list);
+		request.setMarketplace(api.getMarketplaceID());
+		//request.setMWSAuthToken(api.getAPISellerUserToken());
+		request.setSellerId(api.getSellerID());
+		request.setShipFromAddress(BeanUtils.copyProperties(shipFromAddress, Address.class));
+		request.setShipToCountryCode(shipToCountryCode);
+
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String data = mapper.writeValueAsString(request);
+			LOGGER.info("创建补货计划-准备提交给亚马逊的数据："+data);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		//此处默认"SELLER_LABEL"
+		request.setLabelPrepPreference("SELLER_LABEL");
+		//try
+		CreateInboundShipmentPlanResponse response = null;
+		if (IS_REAL_INVOKE==REAL_INVOKE){
+			 response = client.createInboundShipmentPlan(request);
+		}else if (IS_REAL_INVOKE==MOCK){
+			FBAInboundServiceMWSMock mwsMock = new FBAInboundServiceMWSMock();
+			response = mwsMock.createInboundShipmentPlan(request);
+		}
+		try {
+			String data = mapper.writeValueAsString(response.getCreateInboundShipmentPlanResult());
+			LOGGER.info("创建补货计划-亚马逊返回的数据："+data);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return response.getCreateInboundShipmentPlanResult().getInboundShipmentPlans();
+	}
+
+    /**
+     *
+     *
+     * @param api
+     * @param inboundShipmentVO
+     * @return
+     */
+	public static CreateInboundShipmentResult createInboundShipment(AmazonConfigInfo api ,InboundShipmentVO inboundShipmentVO){
+		//掉方法之前事先初始化client
+		init(api);
+		LOGGER.info("创建补货订单-店铺webservice地址："+api.getServiceURL());
+
+		CreateInboundShipmentRequest request = new CreateInboundShipmentRequest();
+		request.setMarketplace(api.getMarketplaceID());
+		//request.setMWSAuthToken(api.getAPISellerUserToken());
+		request.setSellerId(api.getSellerID());
+		request.setShipmentId(inboundShipmentVO.getShipmentId());
+
+		//设置头信息
+		InboundShipmentHeader header = new InboundShipmentHeader();
+		header.setDestinationFulfillmentCenterId(inboundShipmentVO.getDestinationFulfillmentCenterId());
+		header.setLabelPrepPreference(inboundShipmentVO.getLabelPrepType());
+		header.setShipFromAddress(BeanUtils.copyProperties(inboundShipmentVO.getShipFromAddress(),Address.class));
+		header.setShipmentName(inboundShipmentVO.getShipmentName());
+		header.setShipmentStatus(inboundShipmentVO.getShipmentStatus());
+		
+		request.setInboundShipmentHeader(header);
+		//创建商品项
+		InboundShipmentItemList itemList = new InboundShipmentItemList();
+		
+		List<InboundShipmentItem> members = new ArrayList<InboundShipmentItem>();
+		List<InboundItemVO> items = inboundShipmentVO.getItems();
+		for (InboundItemVO inboundItemVO : items) {
+			InboundShipmentItem item = new InboundShipmentItem();
+			item.setSellerSKU(inboundItemVO.getSellerSKU());
+			item.setQuantityShipped(inboundItemVO.getQuantity());
+			members.add(item);
+		}
+		
+		
+		itemList.setMember(members);
+		request.setInboundShipmentItems(itemList);
+
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String string = mapper.writeValueAsString(request);
+			LOGGER.info("创建补货订单-准备提交给亚马逊："+string);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		//调用亚马逊接口
+		CreateInboundShipmentResponse response = null;
+		CreateInboundShipmentResult result = null;
+		if (IS_REAL_INVOKE == REAL_INVOKE){
+			response = client.createInboundShipment(request);
+			result = response.getCreateInboundShipmentResult();
+		}else if (IS_REAL_INVOKE == MOCK){
+			FBAInboundServiceMWSMock mwsMock = new FBAInboundServiceMWSMock();
+			response = mwsMock.createInboundShipment(request);
+			result = response.getCreateInboundShipmentResult();
+		}
+		//模拟调用
+		try {
+			String data = mapper.writeValueAsString(response.getCreateInboundShipmentResult());
+			LOGGER.info("创建补货订单-亚马逊返回："+data);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+
+
+
+
+	//update fba re
+	public static UpdateInboundShipmentResult updateInboundShipment(AmazonConfigInfo api ,InboundShipmentVO inboundShipmentVO){
+        //掉方法之前事先初始化client
+		init(api);
+		LOGGER.info("修改补货订单-店铺webservice地址："+api.getServiceURL());
+
+		UpdateInboundShipmentRequest request = new UpdateInboundShipmentRequest();
+		//request.setMWSAuthToken(api.getAPISellerUserToken());
+		request.setMarketplace(api.getMarketplaceID());
+		request.setSellerId(api.getSellerID());
+		request.setShipmentId(inboundShipmentVO.getShipmentId());
+
+		//设置头信息
+		InboundShipmentHeader header = new InboundShipmentHeader();
+		header.setDestinationFulfillmentCenterId(inboundShipmentVO.getDestinationFulfillmentCenterId());
+		header.setLabelPrepPreference(inboundShipmentVO.getLabelPrepType());
+		header.setShipmentName(inboundShipmentVO.getShipmentName());
+		header.setShipmentStatus(inboundShipmentVO.getShipmentStatus());
+		//退货地址
+        header.setShipFromAddress(BeanUtils.copyProperties(inboundShipmentVO.getShipFromAddress(),Address.class));
+
+		request.setInboundShipmentHeader(header);
+		//创建商品项
+		InboundShipmentItemList itemList = new InboundShipmentItemList();
+		List<InboundShipmentItem> members = new ArrayList<InboundShipmentItem>();
+		List<InboundItemVO> items = inboundShipmentVO.getItems();
+		for (InboundItemVO inboundItemVO : items) {
+			InboundShipmentItem item = new InboundShipmentItem();
+			item.setSellerSKU(inboundItemVO.getSellerSKU());
+			item.setQuantityShipped(inboundItemVO.getQuantity());
+			members.add(item);
+		}
+
+		itemList.setMember(members);
+		request.setInboundShipmentItems(itemList);
+
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String string = mapper.writeValueAsString(inboundShipmentVO);
+			LOGGER.info("修改补货订单-准备提交给亚马逊："+string);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+
+		//模拟调用
+//		FBAInboundServiceMWSMock mwsMock = new FBAInboundServiceMWSMock();
+//		CreateInboundShipmentResponse response = mwsMock.createInboundShipment(request);
+//		UpdateInboundShipmentResponse response = mwsMock.updateInboundShipment(request);
+		UpdateInboundShipmentResponse response = null;
+		UpdateInboundShipmentResult result = null;
+		if (IS_REAL_INVOKE == REAL_INVOKE){
+			//调用亚马逊接口
+         response = client.updateInboundShipment(request);
+         result = response.getUpdateInboundShipmentResult();
+		}else if (IS_REAL_INVOKE == MOCK){
+			response = new UpdateInboundShipmentResponse();
+			result = new UpdateInboundShipmentResult();
+			result.setShipmentId(request.getShipmentId());
+			response.setUpdateInboundShipmentResult(result);
+		}
+
+		try {
+			String data = mapper.writeValueAsString(response.getUpdateInboundShipmentResult());
+			LOGGER.info("修改补货订单-亚马逊返回："+data);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	public static TransportResult putTransportContent(AmazonConfigInfo api, TransportContentVO transportContentVO) {
+
+		init(api);	//掉方法之前事先初始化client
+		LOGGER.info("向亚马逊发送入库货件的运输信息-店铺webservice地址："+api.getServiceURL());
+
+		//封装信息
+		PutTransportContentRequest request = new PutTransportContentRequest();
+		request.setSellerId(api.getSellerID());
+		request.setShipmentId(transportContentVO.getShipmentId());
+		request.setIsPartnered(transportContentVO.getPartnered());
+		request.setShipmentType(transportContentVO.getShipmentType());
+
+		TransportDetailInput transportDetailInput = new TransportDetailInput();
+		NonPartneredSmallParcelDataInput NonPartneredLtlData = new NonPartneredSmallParcelDataInput();
+		NonPartneredSmallParcelPackageInputList nonPartneredSmallParcelPackageInputList = new NonPartneredSmallParcelPackageInputList();
+
+		List<NonPartneredSmallParcelPackageInput> _nonPartneredSmallParcelPackageInputList = new ArrayList<NonPartneredSmallParcelPackageInput>();
+		for (TransportDetailInputVO  transportDetailInputVO :transportContentVO.getTransportDetailInputVO()) {
+			NonPartneredSmallParcelPackageInput PackageList = new NonPartneredSmallParcelPackageInput();
+			PackageList.setTrackingId(transportDetailInputVO.getTrackingId());
+			_nonPartneredSmallParcelPackageInputList.add(PackageList);
+		}
+		nonPartneredSmallParcelPackageInputList.setMember(_nonPartneredSmallParcelPackageInputList);
+
+		NonPartneredLtlData.setPackageList(nonPartneredSmallParcelPackageInputList);
+		NonPartneredLtlData.setCarrierName(transportContentVO.getCarrierName());
+		transportDetailInput.setNonPartneredSmallParcelData(NonPartneredLtlData);
+
+		request.setTransportDetails(transportDetailInput);
+
+		//used by test
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String string = mapper.writeValueAsString(request);
+			LOGGER.info("receive："+string);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		//调用亚马逊接口
+		PutTransportContentResponse response = client.putTransportContent(request);
+		PutTransportContentResult putTransportContentResult = response.getPutTransportContentResult();
+
+		return putTransportContentResult.getTransportResult();
+	}
+
+
+	public static ListInboundShipmentsResultVO listInboundShipments(AmazonConfigInfo api, AmazonShipmentStatusListVO amazonShipmentStatusListVO){
+		init(api);	//掉方法之前事先初始化client
+
+		ListInboundShipmentsRequest request = new ListInboundShipmentsRequest();
+		ShipmentIdList idList = new ShipmentIdList();
+		List<String> member = new ArrayList<String>();   //idList传入
+		for (String shipmentId : amazonShipmentStatusListVO.getShipmentIdList()) {
+			member.add(shipmentId);
+		}
+
+		idList.setMember(member);
+		request.setShipmentIdList(idList);  //set ids
+		request.setSellerId(api.getSellerID());
+//		request.setMarketplace(api.getMarketplaceID());
+
+//		此日期用于选择您在某个指定日期后（或当时）已更改库存供应情况的商品，日期格式为 ISO 8601。
+		if(amazonShipmentStatusListVO.getStartDate()!=null){
+			XMLGregorianCalendar queryStartDateTime = DateUtils.getXMLGregorianCalendar(DateUtils.convertDate("2018-5-1"));
+			request.setLastUpdatedAfter(queryStartDateTime);
+			request.setLastUpdatedBefore(DateUtils.getXMLGregorianCalendar(new Date()));
+		}
+
+		//used by test
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String string = mapper.writeValueAsString(request);
+			LOGGER.info("订单跟踪号-准备提交给亚马逊："+string);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		//调用亚马逊
+		ListInboundShipmentsResponse listInboundShipmentsResponse = client.listInboundShipments(request);
+		String nextToken = listInboundShipmentsResponse.getListInboundShipmentsResult().getNextToken();
+		List<InboundShipmentInfo> orderDetailList = listInboundShipmentsResponse.getListInboundShipmentsResult().getShipmentData().getMember();
+
+		//把它有用的元素封装给vo，用于osms连接数据库来进行持久化
+		List<InboundShipmentInfoVO> listInboundShipmentsResultVOS = BeanUtils.copyList(orderDetailList, InboundShipmentInfoVO.class);
+		ListInboundShipmentsResultVO resultVO = new ListInboundShipmentsResultVO();
+		resultVO.setInboundShipmentInfoVOList(listInboundShipmentsResultVOS);
+
+		if (nextToken!=null) {
+			resultVO.setNextToken(nextToken);
+		}
+
+		return resultVO;
+	}
+
+
+
+	//分页的情况
+	public static ListInboundShipmentsResultVO listInboundShipmentsByNextToken(AmazonConfigInfo api,AmazonShipmentStatusListVO amazonShipmentStatusListVO) {
+		init(api);	//掉方法之前事先初始化client
+
+		ListInboundShipmentsByNextTokenRequest request = new ListInboundShipmentsByNextTokenRequest();
+		request.setNextToken(amazonShipmentStatusListVO.getNextToken());
+		request.setSellerId(api.getSellerID());
+//		request.setMarketplace(api.getMarketplaceID());
+
+		//used by test
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			String string = mapper.writeValueAsString(request);
+			LOGGER.info("传过来了："+string);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			ListInboundShipmentsByNextTokenResponse response = client.listInboundShipmentsByNextToken(request);
+			String nextToken = response.getListInboundShipmentsByNextTokenResult().getNextToken();
+			List<InboundShipmentInfo> orderDetailList = response.getListInboundShipmentsByNextTokenResult().getShipmentData().getMember();
+			if (orderDetailList==null){ //调用失败异常
+				return null;
+			}
+
+			//把它有用的元素封装给vo，用于osms连接数据库来进行持久化
+			List<InboundShipmentInfoVO> listInboundShipmentsResultVOS = BeanUtils.copyList(orderDetailList, InboundShipmentInfoVO.class);
+			ListInboundShipmentsResultVO resultVO = new ListInboundShipmentsResultVO();
+			resultVO.setInboundShipmentInfoVOList(listInboundShipmentsResultVOS);
+			if (nextToken!=null) {
+				resultVO.setNextToken(nextToken);
+			}
+			return resultVO;
+		}catch (Exception e){
+			e.printStackTrace();
+		}
+
+		return null;
+	}
+
+
+
+}

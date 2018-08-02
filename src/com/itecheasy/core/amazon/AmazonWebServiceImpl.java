@@ -9,13 +9,12 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import com.amazon.client.AmazonReportClient;
 import com.amazonaws.mws.MarketplaceWebServiceException;
 import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.model.*;
-import com.itecheasy.common.util.DeployProperties;
 import com.itecheasy.core.amazon.getReportResult.AmazonStockReportVO;
 import com.itecheasy.core.amazon.getReportvo.RequestReportVO;
-import com.itecheasy.core.amazon.isRealIvokeAmazon.IsRealGetStockReportFromAmazon;
-import com.itecheasy.core.amazon.isRealIvokeAmazon.MockIsRealGetStockReportFromAmazonImpl;
-import com.itecheasy.core.amazon.isRealIvokeAmazon.RealGetStockReportFromAmazonImpl;
+import com.itecheasy.core.amazon.isRealIvokeAmazon.Base;
+
 import com.itecheasy.core.amazon.vo.*;
+import com.printMethod.annotations.LoggerNameDescription;
 import org.apache.log4j.Logger;
 
 import com.amazon.client.AmazonClient;
@@ -36,6 +35,8 @@ import com.amazonservices.mws.orders._2013_09_01.model.OrderItem;
 import com.itecheasy.common.util.BeanUtils;
 import com.itecheasy.common.util.CollectionUtils;
 import com.itecheasy.common.util.DateUtils;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.ContextLoader;
 
 /**
  * @author wanghw
@@ -43,24 +44,29 @@ import com.itecheasy.common.util.DateUtils;
  * @description TODO
  * @version
  */
-public class AmazonWebServiceImpl implements AmazonWebService {
+public class AmazonWebServiceImpl extends Base implements AmazonWebService {
 
-	private final static int MOCK = 0;
-	private final static int REAL_INVOKE = 1;
-	private static int IS_REAL_INVOKE =-1; //修改这个来用于判断是否真实调用亚马逊
-
-	private IsRealGetStockReportFromAmazon isRealGetStockReportFromAmazon;
+    private final static Logger LOGGER=Logger.getLogger(AmazonWebServiceImpl.class);
 
 	AmazonWebServiceImpl(){
-		IS_REAL_INVOKE = Integer.parseInt(DeployProperties.getInstance().getProperty("amazon.stock.report.invoke"));
-		if(IS_REAL_INVOKE == 1){
-			this.isRealGetStockReportFromAmazon = new RealGetStockReportFromAmazonImpl();
+	    super();
+	}
+
+	public void initInvokeGetStockFromAmazon(){
+//		ApplicationContext act = ContextLoader.getCurrentWebApplicationContext();
+//		this.isRealListInboundShipments = (MockListInboundShipmentsImpl)act.getBean("mockListInboundShipments");
+//		System.out.println("------------------");
+		if(IS_REAL_INVOKE == REAL_INVOKE){
+			this.isRealListInboundShipments = isRealListInboundShipmentsMap.get("realListInboundShipmentsBean");
+			this.isRealGetStockReportFromAmazon = isRealInvokeAmazonMap.get("realGetStockReportFromAmazonBean");
+		}else if (IS_REAL_INVOKE == MOCK) {
+			this.isRealListInboundShipments = isRealListInboundShipmentsMap.get("mockListInboundShipmentsBean");
+			this.isRealGetStockReportFromAmazon = isRealInvokeAmazonMap.get("mockGetStockReportFromAmazonBean");
 		}
-		this.isRealGetStockReportFromAmazon = new MockIsRealGetStockReportFromAmazonImpl();
+		System.out.println("初始化调用amazonBean完成");
 	}
 
 
-	private final static Logger LOGGER=Logger.getLogger(AmazonWebServiceImpl.class);
 	@Override
 	public String getResultBySessionId(String sessionId,AmazonConfigInfo api) {
 		try {
@@ -329,6 +335,7 @@ public class AmazonWebServiceImpl implements AmazonWebService {
 	}
 
 
+
 	@Override
 	public String putTransportContent(AmazonConfigInfo api, TransportContentVO transportContentVO) {
 		TransportResult result = AmazonInboundClient.putTransportContent(api,transportContentVO);
@@ -337,42 +344,46 @@ public class AmazonWebServiceImpl implements AmazonWebService {
 
 	@Override
 	public ListInboundShipmentsResultVO listInboundShipments(AmazonConfigInfo api, AmazonShipmentStatusListVO amazonShipmentStatusListVO) {
-		ListInboundShipmentsResultVO resultVO = AmazonInboundClient.listInboundShipments(api, amazonShipmentStatusListVO);
-		return resultVO;
-
+		return this.isRealListInboundShipments.listInboundShipments(api, amazonShipmentStatusListVO);
 	}
 
 	@Override
 	public ListInboundShipmentsResultVO listInboundShipmentsByNextToken(AmazonConfigInfo api, AmazonShipmentStatusListVO amazonShipmentStatusListVO) {
-		ListInboundShipmentsResultVO resultVO = AmazonInboundClient.listInboundShipmentsByNextToken(api, amazonShipmentStatusListVO);
-		return resultVO;
-
+		return this.isRealListInboundShipments.listInboundShipmentsByNextToken(api, amazonShipmentStatusListVO);
 	}
 
 
-//
+
+	@LoggerNameDescription(methodNameDescription = "getReport方法")
 	public List<AmazonStockReportVO> getReport(RequestReportVO step1VO, AmazonConfigInfo api){
 		try {
-			//初始化	client   initialize
-			AmazonReportClient.init(api,step1VO.getShopId());
+            LOGGER.info("开始访问亚马逊获取报告-----------------------");
+            LOGGER.info("获取亚马逊reportStock step 0" +MAPPER.writeValueAsString(step1VO));
+            LOGGER.info("获取亚马逊reportStock step 000" +MAPPER.writeValueAsString(api));
+			//统一初始化	client   initialize
+//			AmazonReportClient.init(api,step1VO.getShopId());
+            LOGGER.info("获取亚马逊reportStock step 1------初始化成功");
 
 			//调用6个亚马逊的api来获取报告 并且把亚马逊的流给保存为txt文件
 //			List<String> allAbsolutePath = AmazonReportClient.getReportAllResult(step1VO, api);
-			List<String> allAbsolutePath = this.isRealGetStockReportFromAmazon.getReportAllResult(step1VO, api);
+			List<String> allAbsolutePath = super.isRealGetStockReportFromAmazon.getReportAllResult(step1VO, api);
+            LOGGER.info("获取亚马逊reportStock step2，读取了从亚马逊下载回的文件并转换为缓存成功" +allAbsolutePath);
 
 			//把多个报告写入到多个temp文件中,返回的是cache文件的路径
 //			List<String> backupFileOutput = AmazonReportClient.newFileOutput(reportAllResult);
 
 			//读取txt报告文件
 			List<AmazonStockReportVO> amazonStockReportVOS = AmazonReportClient.fileOutputOriginalVersion(allAbsolutePath,step1VO.getShopId());
+            LOGGER.info("获取亚马逊reportStock step3，读取了从亚马逊下载回的文件读取缓存文件并成功转换为VO对象，准备传输给OSMS" + MAPPER.writeValueAsString(amazonStockReportVOS));
 
 			//把vo写入result.txt文件中,用于备份
 			AmazonReportClient.fileOutput003(amazonStockReportVOS);
+			LOGGER.info("已完成---------------------获取亚马逊reportStock step4，根据解析的VOList备份文件，总共同步了"+amazonStockReportVOS.size()+"条报告");
 
 			//把voList返回给osms主系统
 			return amazonStockReportVOS;
 		} catch (InterruptedException e) {
-            LOGGER.error("sleep线程错误，同步失败_店铺ID:"+step1VO.getShopId() +",sellerID:"+api.getSellerID());
+            LOGGER.error("sleep线程被中断，同步失败_店铺ID:"+step1VO.getShopId() +",sellerID:"+api.getSellerID());
             e.printStackTrace();
         } catch (IOException e) {
             LOGGER.error("读取文件错误或备份失败，同步失败_店铺ID:"+step1VO.getShopId()+",sellerID:"+api.getSellerID());
@@ -386,5 +397,7 @@ public class AmazonWebServiceImpl implements AmazonWebService {
         }
         return null;
 	}
+
+
 
 }

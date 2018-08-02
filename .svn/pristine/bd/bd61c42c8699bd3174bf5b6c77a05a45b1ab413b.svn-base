@@ -1,0 +1,23 @@
+package com.itecheasy.core.amazon.isRealIvokeAmazon;
+
+import com.itecheasy.common.util.DeployProperties;
+
+/**
+ * @Auther: liteng
+ * @Date: 2018/7/18 08:47
+ * @Description:
+ */
+public abstract class Base {
+
+    protected IsRealGetStockReportFromAmazon isRealGetStockReportFromAmazon;
+
+    protected final static int MOCK = 0;
+    protected final static int REAL_INVOKE = 1;
+    protected static int IS_REAL_INVOKE =-1; //修改这个来用于判断是否真实调用亚马逊
+
+
+    public Base() {
+        IS_REAL_INVOKE = Integer.parseInt(DeployProperties.getInstance().getProperty("amazon.stock.report.invoke"));
+    }
+
+}

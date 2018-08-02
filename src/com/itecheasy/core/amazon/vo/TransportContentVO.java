@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class TransportContentVO extends BaseVO{
 
-
+    //shipmentId在父类中
     private Boolean IsPartnered;    //false
 
     private String ShipmentType;    //SP – 小包裹快递   LTL – 零担货运/货车荷载 (LTL/FTL)    我们是:SP

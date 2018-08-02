@@ -1,0 +1,69 @@
+package com.printMethod;
+
+
+import com.printMethod.annotations.LoggerNameDescription;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.codehaus.jackson.map.ObjectMapper;
+
+
+import java.lang.reflect.Method;
+
+/**
+ * @Auther: liteng
+ * @Date: 2018/7/24 08:49
+ * @Description:在需要打印日志的类上写入注解,注意:静态方法不会被切到
+ */
+public class LoggerNew {
+    private static final Logger LOGGER = Logger.getLogger(LoggerNew.class);
+
+//    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final ObjectMapper jsonMapper = new ObjectMapper();
+
+
+    public LoggerNew() {
+        //for the convenience of logger log
+        System.out.println("注解打印日志已开启------------");
+    }
+
+    /**
+     * @param joinPoint
+     * @return
+     * @throws Throwable
+     */
+    public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
+        long beginTime = System.currentTimeMillis();
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        Method method = signature.getMethod();
+        Method realMethod = joinPoint.getTarget().getClass().getDeclaredMethod(signature.getName(), method.getParameterTypes());
+
+        // 获取目标类名
+        String className = joinPoint.getTarget().getClass().getName();
+        // 获取方法名
+        String methodName = signature.getName();
+
+        LoggerNameDescription loggerNameDescription = realMethod.getAnnotation(LoggerNameDescription.class);    //获取目标对象的注解
+        String methodNameDescription = loggerNameDescription.methodNameDescription();
+
+        Object result = null;
+        if (realMethod.isAnnotationPresent(LoggerNameDescription.class)) {
+            if (StringUtils.isNotEmpty(methodNameDescription)) {
+                LOGGER.info(methodNameDescription + "传来了: {"+ jsonMapper.writeValueAsString(joinPoint.getArgs()) +"}");
+                result = joinPoint.proceed();
+                LOGGER.info(methodNameDescription + "返回了: result: { "+jsonMapper.writeValueAsString(result)+"}");
+                return result;
+            } else {
+                LOGGER.info(className + "." + methodName + "Arguments: {"+ jsonMapper.writeValueAsString(joinPoint.getArgs())+"}");
+                result = joinPoint.proceed();
+                LOGGER.info(className + "." + methodName + "After: result: {"+ jsonMapper.writeValueAsString(result)+"}");
+            }
+        }else{
+            result = joinPoint.proceed();
+        }
+        long time = System.currentTimeMillis() - beginTime;
+        return result;
+    }
+
+}
