@@ -3,17 +3,19 @@ package com.itecheasy.core.amazon.isRealIvokeAmazon;
 import com.amazon.client.AmazonReportClient;
 import com.amazonaws.mws.MarketplaceWebServiceException;
 import com.itecheasy.common.util.CollectionUtils;
+import com.itecheasy.common.util.DateUtils;
+import com.itecheasy.common.util.DeployProperties;
+import com.itecheasy.core.amazon.ALLReportUltimateVO;
 import com.itecheasy.core.amazon.AmazonConfigInfo;
-
-import com.itecheasy.core.amazon.vo.*;
 import com.itecheasy.core.amazon.isRealIvokeAmazon.resolveAmazonReport.ResolutionReportFile;
+import com.itecheasy.core.amazon.vo.*;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Auther: liteng
@@ -25,6 +27,10 @@ public class RealGetStockReportFromAmazonImpl implements IsRealGetStockReportFro
     private Map<String, ResolutionReportFile> resolutionReportFileMap = new HashMap<String, ResolutionReportFile>();
     private ResolutionReportFile resolutionReportFile;
 
+    //读取配置文件
+    private static final String CACHEDIR = DeployProperties.getInstance().getProperty("amazon.temp.filePath");
+
+
     public void setResolutionReportFileMap(Map<String, ResolutionReportFile> resolutionReportFileMap) {
         this.resolutionReportFileMap = resolutionReportFileMap;
     }
@@ -33,14 +39,10 @@ public class RealGetStockReportFromAmazonImpl implements IsRealGetStockReportFro
      * 初始化方法
      */
     public void initResolutionReportFile() {
-//        getResolutionReportFileBean("_GET_FBA_INVENTORY_AGED_DATA_");
-//		ApplicationContext act = ContextLoader.getCurrentWebApplicationContext();
-//		FileOutputOriginalVersionFactory ultimateGetReportFactory = (FileOutputOriginalVersionFactory) act.getBean("ultimateGetReportFactory");
-//		ResolutionReportFile inventoryAged = ultimateGetReportFactory.getAmazonReportType("inventoryAged");
     }
 
     /**
-     * 切换bean
+     * 切换bean,多线程下风险很大，最好改为工厂
      *
      * @param str 报告的枚举类型来动态切换bean
      */
@@ -57,6 +59,19 @@ public class RealGetStockReportFromAmazonImpl implements IsRealGetStockReportFro
     }
 
 
+
+
+
+    /**
+     * 第一版的旧版，用来兼容老版本报告
+     *
+     * @param step1VO
+     * @param api
+     * @return
+     * @throws MarketplaceWebServiceException
+     * @throws InterruptedException
+     * @throws IOException
+     */
     @Override
     public List<String> getReportAllResult(RequestReportVO step1VO, AmazonConfigInfo api) throws MarketplaceWebServiceException, InterruptedException, IOException {
         //step first   返回一个ReportRequestId
@@ -138,9 +153,6 @@ public class RealGetStockReportFromAmazonImpl implements IsRealGetStockReportFro
 
 
     /**
-     * decide determine edition
-     * 决定版，返回json
-     *
      * @param step1VO
      * @param api
      * @return
@@ -152,19 +164,23 @@ public class RealGetStockReportFromAmazonImpl implements IsRealGetStockReportFro
     public String getReportAllResultUltimate(RequestReportVO step1VO, AmazonConfigInfo api) throws MarketplaceWebServiceException, InterruptedException, IOException {
         LOGGER.info("getReportStock step 1------init success");
 
+
         //call amazon return 文件路径
         List<String> allAbsolutePath = callAmazonGetReport(step1VO, api);
+
 
         //需要用Spring工厂代替
         getResolutionReportFileBean(step1VO.getReportType());
 
         if (CollectionUtils.isNotEmpty(allAbsolutePath)) {
-            //获取下标
-            Map<String, Integer> reportIndex = this.resolutionReportFile.getReportIndex(allAbsolutePath.get(0));
-            //获取
-            String toJson = this.resolutionReportFile.FileToJson(allAbsolutePath, step1VO.getShopId(), reportIndex);
 
-            LOGGER.error("getReportStock step3 transfer object success and returning to OSMS");
+            //获取文件对应的下标
+            Map<String, Integer> reportIndex = this.resolutionReportFile.getReportIndex(allAbsolutePath.get(0));
+
+            //把文件路径给转换为json
+            String toJson = this.resolutionReportFile.fileToJson(allAbsolutePath, step1VO.getShopId(), reportIndex);
+
+            LOGGER.error("getAgedReport step3 transfer object success and returning to OSMS");
             return toJson;
         }
 
@@ -174,14 +190,92 @@ public class RealGetStockReportFromAmazonImpl implements IsRealGetStockReportFro
 
 
     /**
+     * 获取一个商店下所有的报告
+     * decide determine edition
+     * 决定版，返回json
+     * RTX
+     * <p>
+     * 这个就相当于最外层的controller
+     *
      * @param step1VO
      * @param api
-     * @return return list txt file path
+     * @return
      * @throws MarketplaceWebServiceException
      * @throws InterruptedException
      * @throws IOException
      */
-    public synchronized List<String> callAmazonGetReport(RequestReportVO step1VO, AmazonConfigInfo api) throws MarketplaceWebServiceException, InterruptedException, IOException {
+    @Override
+    public ALLReportUltimateVO getReportAllResultUltimateRTX(RequestReportVO step1VO, AmazonConfigInfo api) throws MarketplaceWebServiceException, InterruptedException, IOException {
+        //调用亚马逊，获取报告信息
+        List<ByteArrayOutputStream> byteArrayOutputStreams = AmazonReportClient.callAmazonSyncReportUltimateRTX(step1VO, api);
+
+        LOGGER.info("getReportAllResultUltimateRTX callAmazonSyncReportUltimateRTX method has success done step first "+step1VO.getReportType());
+
+        //切换bean，不同的报告文件不同的bean解析方式
+        ResolutionReportFile resolutionReportFileBeanRTX = getResolutionReportFileBeanRTX(step1VO.getReportType());
+
+        //基本路径
+        String baseDir = CACHEDIR + step1VO.getReportType() + "\\" + api.getSellerID() + "\\";
+
+        //一个字节数组对应一份亚马逊的报告
+        List<String> fileAbsolutionPathList = AmazonReportClient.readByteArray(byteArrayOutputStreams, baseDir);
+
+        //把临时文件cache给转换为对象
+        if (CollectionUtils.isNotEmpty(fileAbsolutionPathList) && resolutionReportFileBeanRTX!=null) {
+            Map<String, Integer> reportIndex = resolutionReportFileBeanRTX.getReportIndex(fileAbsolutionPathList.get(0));
+            String json = resolutionReportFileBeanRTX.fileToJson(fileAbsolutionPathList, step1VO.getShopId(), reportIndex);
+
+            LOGGER.info("getReportAllResultUltimateRTX  getReportIndex and fileToJson methods has success done step final "+step1VO.getReportType());
+
+            return AmazonReportClient.convertBeanVO(step1VO, api, json, byteArrayOutputStreams);
+        }
+
+        LOGGER.info("getReportAllResultUltimateRTX  transfer json fail, methods has fail done step final enum"+step1VO.getReportType());
+        return null;
+    }
+
+
+    /**
+     * 不同的报告类型转换为不同的bean
+     * 工厂的代替
+     *
+     * @param str
+     * @return
+     */
+    private ResolutionReportFile getResolutionReportFileBeanRTX(String str) {
+        if (IsRealGetStockReportFromAmazon.GetReportType.获取亚马逊库龄报告.enumType.equals(str)) {
+            LOGGER.error("bean cast to resolutionInventoryAgedItem");
+
+            return resolutionReportFileMap.get("resolutionInventoryAgedItem");
+        } else if (IsRealGetStockReportFromAmazon.GetReportType.获取亚马逊商品库存报告.enumType.equals(str)) {
+            LOGGER.error("bean cast to amazonStockItemReport");
+
+            return resolutionReportFileMap.get("amazonStockItemReport");
+        } else if (IsRealGetStockReportFromAmazon.GetReportType.亚马逊物流预计费用报告.enumType.equals(str)) {
+            LOGGER.error("bean cast to logisticsForecastCostReport");
+
+            return resolutionReportFileMap.get("logisticsForecastCostReport");
+
+        }
+
+        LOGGER.error("ResolutionReportFileBean inject false please check ");
+        return null;
+
+    }
+
+
+
+        /**
+         * 第二版的旧版，用来兼容老版本报告
+         *
+         * @param step1VO
+         * @param api
+         * @return return list txt file path
+         * @throws MarketplaceWebServiceException
+         * @throws InterruptedException
+         * @throws IOException
+         */
+    private List<String> callAmazonGetReport(RequestReportVO step1VO, AmazonConfigInfo api) throws MarketplaceWebServiceException, InterruptedException, IOException {
         //step first   返回一个ReportRequestId
         RequestReportResultVO step1Result = AmazonReportClient.requestReport(step1VO, api);
         List<String> ids = new ArrayList<String>();
@@ -231,6 +325,8 @@ public class RealGetStockReportFromAmazonImpl implements IsRealGetStockReportFro
             //收集step3
             allstep3_result.addAll(step3Result.getReportIdList());
 
+            LOGGER.error("step3Result.getReportIdList" + step3Result.getReportIdList());
+
             //step 3.1   考虑到返回nextToken的情况
             boolean hasNext = step3Result.isHasNext();
             String token = step3Result.getNextToken();
@@ -244,12 +340,14 @@ public class RealGetStockReportFromAmazonImpl implements IsRealGetStockReportFro
         }
         allstep3_result.addAll(genIdList);
 
+        LOGGER.error("allstep3_result_all_genIdList" + genIdList);
+
 
         //生成报告
         //  step 2 和2.1的GeneratedReportId当为参数，或者step 3中生成的ReportId作为参数
         //step 4   如果有GeneratedReportId就可以直接生成报告了
         List<String> allAbsolutePath = new ArrayList<String>();
-        LOGGER.error("allAbsolutePath：" + allstep3_result);
+        LOGGER.error("allstep3_result_contains_genId：" + allstep3_result);
 
         //			String resultDerict = DeployProperties.getInstance().getProperty("amazon.result.filePath");
 //			File file = new File(resultDerict + step1VO.getReportType() +"\\" +api.getSellerID()+"\\"+ DateUtils.convertDate(new Date(), "yyyyMMddHHmmss") + ".txt");
@@ -260,9 +358,10 @@ public class RealGetStockReportFromAmazonImpl implements IsRealGetStockReportFro
             allAbsolutePath.add(report);
         }
 
-        LOGGER.info("getReportStock step2，system has read from amazon download report and transfer to backup file txt success . file absolute path" + allAbsolutePath);
+        LOGGER.info("step2，system has read from amazon download report and transfer to backup file txt success . file absolute path" + allAbsolutePath);
 
         return allAbsolutePath;
     }
+
 
 }

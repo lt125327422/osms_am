@@ -150,14 +150,24 @@ public interface AmazonWebService {
 
 
     /**
-     * ultimate通用决定版 返回json
+     *
      *
      * @param requestReportVO
      * @param api
      * @return
      * @throws Exception
      */
-    String getAllReport(@WebParam(name = "requestReportVO") RequestReportVO requestReportVO,
+    public abstract String getAllReport(@WebParam(name = "requestReportVO") RequestReportVO requestReportVO,
                         @WebParam(name = "api") AmazonConfigInfo api) throws Exception;
 
+
+    /**
+     * ultimate通用决定版 返回json
+     * @param step1VO
+     * @param api
+     * @return
+     * @throws Exception
+     */
+    public abstract ALLReportUltimateVO getAllReportUltimate(@WebParam(name = "requestReportVO")RequestReportVO step1VO,
+                                                @WebParam(name = "api") AmazonConfigInfo api) throws Exception;
 }

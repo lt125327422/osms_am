@@ -11,8 +11,10 @@ import java.util.Map;
  */
 public interface ResolutionReportFile {
 
-     String FileToJson(List<String> filePath, Integer shopId, Map<String, Integer> indexMap) throws IOException ;
+     public abstract Map<String,Integer> getReportIndex(String filePath) throws IOException;
 
-     Map<String,Integer> getReportIndex(String filePath) throws IOException;
+     public abstract String fileToJson(List<String> filePath, Integer shopId, Map<String, Integer> indexMap) throws IOException ;
+
+
 
 }

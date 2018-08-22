@@ -13,7 +13,7 @@ public class AmazonStockItemReportFileToVoJsonImpl implements ResolutionReportFi
 
 
     @Override
-    public String FileToJson(List<String> filePath, Integer shopId, Map<String, Integer> indexMap) throws IOException {
+    public String fileToJson(List<String> filePath, Integer shopId, Map<String, Integer> indexMap) throws IOException {
         return null;
     }
 

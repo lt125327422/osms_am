@@ -8,6 +8,7 @@ import com.amazonaws.mws.model.*;
 
 import com.itecheasy.common.util.DateUtils;
 import com.itecheasy.common.util.DeployProperties;
+import com.itecheasy.core.amazon.ALLReportUltimateVO;
 import com.itecheasy.core.amazon.AmazonConfigInfo;
 import com.itecheasy.core.amazon.vo.AmazonStockReportVO;
  import com.itecheasy.core.amazon.vo.GetReportListResultVO;
@@ -460,7 +461,9 @@ public class AmazonReportClient {
         //创建文件字节读取流对象时，必须明确与之关联的数据源。
         Thread.sleep(33000);
         LOGGER.error("getReport step4");
+
         GetReportResponse response = client.getReport(request);
+        LOGGER.error("getReport step4 response"+response.toXML());
         byte[] bytes = baos.toByteArray();
         File file = new File(resultDerict +api.getSellerID()+"\\"+ DateUtils.convertDate(new Date(), "yyyyMMddHHmmss") + ".txt");
 //            File excelFile = new File(resultDerict + DateUtils.convertDate(new Date(), "yyyyMMddHHmmss") + ".xls");
@@ -474,6 +477,190 @@ public class AmazonReportClient {
     }
 
 
+    /**
+     *
+     * step 4 the end
+     *返回一个字符串
+     * @return checksum
+     * @throws MarketplaceWebServiceException
+     */
+    public static ByteArrayOutputStream getReportUltimate(String reportId,AmazonConfigInfo api) throws InterruptedException, MarketplaceWebServiceException, IOException {
+//        init(api);
+        MarketplaceWebServiceClient client = getClient(api);
+        String AMAZON_SELLER_ID = api.getSellerID();
+        List<String> AMAZON_MARKETPLSCEID_LIST = Arrays.asList(api.getMarketplaceID().split(","));
+        GetReportRequest request = new GetReportRequest();
+        request.setReportId(reportId);
+        request.setMerchant(AMAZON_SELLER_ID);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        request.setReportOutputStream(baos);
+
+        //创建文件字节读取流对象时，必须明确与之关联的数据源。
+        Thread.sleep(33000);
+        LOGGER.error("getReport step4");
+
+        GetReportResponse response = client.getReport(request);
+        LOGGER.error("getReport step4 response"+response.toXML());
+//        byte[] bytes = baos.toByteArray();
+
+        return baos;
+
+//        File file = new File(resultDerict +api.getSellerID()+"\\"+ DateUtils.convertDate(new Date(), "yyyyMMddHHmmss") + ".txt");
+
+        //            File excelFile = new File(resultDerict + DateUtils.convertDate(new Date(), "yyyyMMddHHmmss") + ".xls");
+
+//        FileUtils.writeByteArrayToFile(file, bytes);
+//            FileUtils.writeByteArrayToFile(excelFile,bytes);
+//            ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+//            Reader fileReader = new InputStreamReader(bais, "UTF-8");
+//        String md5Checksum = response.getGetReportResult().getMD5Checksum();
+//        return file.getAbsolutePath();  //用来给下一步解析
+    }
+
+
+    /**
+     * 转换bean
+     * @param step1VO
+     * @param api
+     * @param json
+     * @param byteArrayOutputStreams
+     * @return
+     * @throws MarketplaceWebServiceException
+     * @throws InterruptedException
+     * @throws IOException
+     */
+    public static ALLReportUltimateVO convertBeanVO(RequestReportVO step1VO, AmazonConfigInfo api, String json, List<ByteArrayOutputStream> byteArrayOutputStreams) throws MarketplaceWebServiceException, InterruptedException, IOException {
+        ALLReportUltimateVO allReportUltimateVO = new ALLReportUltimateVO();
+        allReportUltimateVO.setApi(api);
+        allReportUltimateVO.setShopId(step1VO.getShopId());
+        allReportUltimateVO.setStep1VO(step1VO);
+
+        //既返回流（需要解析），也返回json
+        allReportUltimateVO.setByteArrayOutputStreamList(byteArrayOutputStreams);
+        allReportUltimateVO.setJson(json);
+
+        return allReportUltimateVO;
+    }
+
+    /**
+     * 读取字节数组，写入到本地文件，并且返回路径
+     * @param byteArrayOutputStreams
+     * @param baseDir
+     * @return
+     * @throws MarketplaceWebServiceException
+     * @throws InterruptedException
+     * @throws IOException
+     */
+    public static  List<String> readByteArray(List<ByteArrayOutputStream> byteArrayOutputStreams,String baseDir) throws MarketplaceWebServiceException, InterruptedException, IOException {
+        List<String> fileAbsolutionPathList = new ArrayList<String>();
+        //一个字节数组对应一份亚马逊的报告
+        for (ByteArrayOutputStream byteArrayOutputStream : byteArrayOutputStreams) {
+            String uuid = UUID.randomUUID().toString();
+            //这个是缓存的目录
+            File file = new File(   baseDir + DateUtils.convertDate(new Date(), "yyyyMMddHHmmss") + uuid + ".txt");
+            byte[] bytes = byteArrayOutputStream.toByteArray();
+            FileUtils.writeByteArrayToFile(file, bytes);
+            fileAbsolutionPathList.add(file.getAbsolutePath());
+        }
+        return fileAbsolutionPathList;
+    }
+
+
+    /**
+     * 最终决定版
+     * 访问亚马逊的步骤
+     * @param step1VO
+     * @param api
+     * @return List<ByteArrayOutputStream>
+     * @throws MarketplaceWebServiceException
+     * @throws InterruptedException
+     * @throws IOException
+     */
+    public static List<ByteArrayOutputStream> callAmazonSyncReportUltimateRTX(RequestReportVO step1VO, AmazonConfigInfo api) throws MarketplaceWebServiceException, InterruptedException, IOException {
+        //step first   返回一个ReportRequestId
+        RequestReportResultVO step1Result = AmazonReportClient.requestReport(step1VO, api);
+        List<String> ids = new ArrayList<String>();
+        ids.add(step1Result.getReportRequestId());  //一个枚举对应一个id
+
+        //step 2
+        GetReportRequestListVO step2VO = new GetReportRequestListVO();
+        step2VO.setIds(ids);
+        GetReportRequestListResultVO reportRequest = AmazonReportClient.getReportRequestList(step2VO, api, 5);
+
+        //收集step2.0
+        List<GetReportRequestListResultVO> allStep2Result = new ArrayList<GetReportRequestListResultVO>();
+        allStep2Result.add(reportRequest);
+
+        //step 2.1   考虑到返回nextToken的情况
+        boolean hasNext1 = reportRequest.isHasNext();
+        String token1 = reportRequest.getNextToken();
+        while (hasNext1) {
+            GetReportRequestListResultVO step2_1Result = AmazonReportClient.getReportRequestListByNextToken(token1, api);
+            token1 = step2_1Result.getNextToken();
+            hasNext1 = step2_1Result.isHasNext();
+            allStep2Result.add(step2_1Result); //收集step3next
+        }
+
+        List<String> step3IdList = new ArrayList<String>();
+        List<String> genIdList = new ArrayList<String>();
+        for (GetReportRequestListResultVO step2Result : allStep2Result) {
+            if (step2Result != null && step2Result.getGeneratedReportIdList() != null &&
+                    step2Result.getGeneratedReportIdList().size() > 0) {
+                genIdList.addAll(step2Result.getGeneratedReportIdList());
+            } else if (step2Result != null && step2Result.getReportRequestIdList() != null &&
+                    step2Result.getReportRequestIdList().size() > 0) {
+                step3IdList.addAll(step2Result.getReportRequestIdList());
+            }
+        }
+
+        //step 3   调用这个api是因为有些订单没有GeneratedReportId
+        //集合所有第二部的参数
+        List<String> allstep3_result = new ArrayList<String>();
+        if (step3IdList.size() > 0) {
+            List<String> step3Param = new ArrayList<String>(step3IdList);
+            GetReportListVO vo = new GetReportListVO();  //封装给step3调用
+            vo.setReportRequestIdList(step3Param);
+            LOGGER.error("step3Param:" + step3Param);
+            GetReportListResultVO step3Result = AmazonReportClient.getReportList(vo, api);//调用amazon step3
+
+            //收集step3
+            allstep3_result.addAll(step3Result.getReportIdList());
+
+            LOGGER.error("step3Result.getReportIdList"+step3Result.getReportIdList());
+
+            //step 3.1   考虑到返回nextToken的情况
+            boolean hasNext = step3Result.isHasNext();
+            String token = step3Result.getNextToken();
+            while (hasNext) {
+                GetReportListResultVO step3_1Result = AmazonReportClient.getReportListByNextToken(token, api);
+                token = step3_1Result.getNextToken();
+                hasNext = step3_1Result.isHasNext();
+                //收集step3next
+                allstep3_result.addAll(step3_1Result.getReportIdList());
+            }
+        }
+        allstep3_result.addAll(genIdList);
+
+        LOGGER.error("allstep3_result_all_genIdList"+genIdList);
+
+
+        //生成报告
+        //  step 2 和2.1的GeneratedReportId当为参数，或者step 3中生成的ReportId作为参数
+        //step 4   如果有GeneratedReportId就可以直接生成报告了
+
+        LOGGER.error("allstep3_result_contains_genId：" + allstep3_result);
+
+
+        List<ByteArrayOutputStream> allByteArrayOutputStream = new ArrayList<ByteArrayOutputStream>();
+        for (String lastParam : allstep3_result) {
+            ByteArrayOutputStream reportUltimate = AmazonReportClient.getReportUltimate(lastParam, api);
+            allByteArrayOutputStream.add(reportUltimate);
+        }
+
+        LOGGER.info("system has read from amazon download report and transfer to backup file txt success " );
+
+        return allByteArrayOutputStream;
+    }
 
 
 

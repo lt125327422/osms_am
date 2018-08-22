@@ -7,7 +7,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="818432d2-91c2-4254-9bbb-16193c910f6b" name="Default" comment="更改vo包名">
+      <change afterPath="$PROJECT_DIR$/src/com/itecheasy/core/amazon/ALLReportUltimateVO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/LogisticsForecastCostReportImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/com/itecheasy/core/amazon/vo/AmazonLogisticsForecastCostReportVO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cfg/applicationContext.xml" beforeDir="false" afterPath="$PROJECT_DIR$/cfg/applicationContext.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cfg/deploy_config.properties" beforeDir="false" afterPath="$PROJECT_DIR$/cfg/deploy_config.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/amazon/client/AmazonReportClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/amazon/client/AmazonReportClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/itecheasy/core/amazon/AmazonWebService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/itecheasy/core/amazon/AmazonWebService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/itecheasy/core/amazon/AmazonWebServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/itecheasy/core/amazon/AmazonWebServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/IsRealGetStockReportFromAmazon.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/IsRealGetStockReportFromAmazon.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/MockGetStockReportFromAmazonImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/MockGetStockReportFromAmazonImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/RealGetStockReportFromAmazonImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/RealGetStockReportFromAmazonImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/AmazonStockItemReportFileToVoJsonImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/AmazonStockItemReportFileToVoJsonImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/ResolutionInventoryAgedItemResolutionReportImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/ResolutionInventoryAgedItemResolutionReportImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/ResolutionReportFile.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/ResolutionReportFile.java" afterDir="false" />
     </list>
     <list id="1e7b9dbc-bb2b-413c-a4a9-713d1b39abd2" name="ignore" comment="not commit svn">
       <change afterPath="$PROJECT_DIR$/cfg/rebel.xml" afterDir="false" />
@@ -67,53 +80,56 @@
           <entry key="project.open.time.29" value="2" />
           <entry key="project.open.time.3" value="1" />
           <entry key="project.open.time.30" value="1" />
-          <entry key="project.open.time.33" value="1" />
+          <entry key="project.open.time.33" value="2" />
           <entry key="project.open.time.34" value="1" />
+          <entry key="project.open.time.38" value="1" />
           <entry key="project.open.time.4" value="1" />
           <entry key="project.open.time.45" value="1" />
           <entry key="project.open.time.6" value="1" />
           <entry key="project.open.time.7" value="2" />
           <entry key="project.open.time.8" value="4" />
           <entry key="project.open.time.9" value="3" />
-          <entry key="project.opened" value="38" />
+          <entry key="project.opened" value="40" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="class" value="5" />
-          <entry key="java" value="5503" />
-          <entry key="properties" value="58" />
+          <entry key="java" value="6952" />
+          <entry key="properties" value="59" />
           <entry key="txt" value="130" />
-          <entry key="xml" value="112" />
+          <entry key="xml" value="127" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="CLASS" value="5" />
-          <entry key="JAVA" value="5503" />
+          <entry key="JAVA" value="6952" />
           <entry key="PLAIN_TEXT" value="130" />
-          <entry key="Properties" value="58" />
-          <entry key="XML" value="112" />
+          <entry key="Properties" value="59" />
+          <entry key="XML" value="127" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="class" value="66" />
+          <entry key="class" value="69" />
           <entry key="iml" value="1" />
-          <entry key="java" value="270" />
+          <entry key="isRealIvokeAmazon" value="1" />
+          <entry key="java" value="303" />
           <entry key="log" value="11" />
-          <entry key="properties" value="22" />
-          <entry key="xml" value="17" />
+          <entry key="properties" value="24" />
+          <entry key="xml" value="21" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="CLASS" value="66" />
+          <entry key="CLASS" value="69" />
           <entry key="IDEA_MODULE" value="1" />
-          <entry key="JAVA" value="270" />
+          <entry key="JAVA" value="303" />
           <entry key="PLAIN_TEXT" value="11" />
-          <entry key="Properties" value="22" />
-          <entry key="XML" value="17" />
+          <entry key="Properties" value="24" />
+          <entry key="UML" value="1" />
+          <entry key="XML" value="21" />
         </counts>
       </usages-collector>
     </session>
@@ -126,8 +142,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/AmazonWebServiceImpl.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6384">
-              <caret line="334" selection-start-line="334" selection-end-line="334" />
+            <state relative-caret-position="113">
+              <caret line="443" column="106" selection-start-line="443" selection-start-column="106" selection-end-line="443" selection-end-column="106" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -138,20 +154,13 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/amazon/client/AmazonReportClient.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="126">
-              <caret line="31" column="3" selection-start-line="31" selection-start-column="3" selection-end-line="31" selection-end-column="3" />
+            <state relative-caret-position="514">
+              <caret line="553" column="18" selection-start-line="553" selection-start-column="18" selection-end-line="553" selection-end-column="18" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#25997#26005#0" expanded="true" />
+                <element signature="e#28755#28778#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/IsRealGetStockReportFromAmazon.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="966">
-              <caret line="51" column="11" selection-start-line="51" selection-start-column="11" selection-end-line="51" selection-end-column="11" />
             </state>
           </provider>
         </entry>
@@ -159,50 +168,12 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/RealGetStockReportFromAmazonImpl.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2730">
-              <caret line="143" column="14" selection-start-line="143" selection-start-column="14" selection-end-line="143" selection-end-column="14" />
+            <state relative-caret-position="458">
+              <caret line="224" column="79" selection-start-line="224" selection-start-column="79" selection-end-line="224" selection-end-column="79" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#893#923#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/RealListInboundShipmentsImpl.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="483">
-              <caret line="28" column="56" selection-start-line="28" selection-start-column="56" selection-end-line="28" selection-end-column="56" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/AmazonWebService.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="63">
-              <caret line="9" selection-start-line="9" selection-end-line="9" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/Base.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="336">
-              <caret line="20" column="31" selection-start-line="20" selection-start-column="31" selection-end-line="20" selection-end-column="31" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/MockGetStockReportFromAmazonImpl.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1323">
-              <caret line="71" selection-start-line="71" selection-end-line="71" />
             </state>
           </provider>
         </entry>
@@ -210,20 +181,163 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/ResolutionReportFile.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="273">
-              <caret line="15" column="25" selection-start-line="15" selection-start-column="25" selection-end-line="15" selection-end-column="25" />
+            <state relative-caret-position="231">
+              <caret line="13" column="41" selection-start-line="13" selection-start-column="41" selection-end-line="13" selection-end-column="41" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/IsRealGetStockReportFromAmazon.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="315">
+              <caret line="21" column="15" selection-start-line="21" selection-start-column="15" selection-end-line="21" selection-end-column="15" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/AmazonStockItemReportFileToVoJsonImpl.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="189">
+              <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/ResolutionInventoryAgedItemResolutionReportImpl.java">
+        <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/LogisticsForecastCostReportImpl.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="424">
-              <caret line="468" column="43" selection-start-line="468" selection-start-column="43" selection-end-line="468" selection-end-column="43" />
+            <state relative-caret-position="609">
+              <caret line="86" column="16" selection-start-line="86" selection-start-column="16" selection-end-line="86" selection-end-column="16" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#1656#1693#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/vo/AmazonLogisticsForecastCostReportVO.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="63">
+              <caret line="3" column="17" selection-start-line="3" selection-start-column="17" selection-end-line="3" selection-end-column="17" />
+              <folding>
+                <element signature="e#1300#1301#0" expanded="true" />
+                <element signature="e#1325#1326#0" expanded="true" />
+                <element signature="e#1358#1359#0" expanded="true" />
+                <element signature="e#1386#1387#0" expanded="true" />
+                <element signature="e#1420#1421#0" expanded="true" />
+                <element signature="e#1449#1450#0" expanded="true" />
+                <element signature="e#1494#1495#0" expanded="true" />
+                <element signature="e#1530#1531#0" expanded="true" />
+                <element signature="e#1564#1565#0" expanded="true" />
+                <element signature="e#1596#1597#0" expanded="true" />
+                <element signature="e#1644#1645#0" expanded="true" />
+                <element signature="e#1686#1687#0" expanded="true" />
+                <element signature="e#1719#1720#0" expanded="true" />
+                <element signature="e#1750#1751#0" expanded="true" />
+                <element signature="e#1796#1797#0" expanded="true" />
+                <element signature="e#1836#1837#0" expanded="true" />
+                <element signature="e#1866#1867#0" expanded="true" />
+                <element signature="e#1892#1893#0" expanded="true" />
+                <element signature="e#1930#1931#0" expanded="true" />
+                <element signature="e#1960#1961#0" expanded="true" />
+                <element signature="e#1992#1993#0" expanded="true" />
+                <element signature="e#2020#2021#0" expanded="true" />
+                <element signature="e#2062#2063#0" expanded="true" />
+                <element signature="e#2096#2097#0" expanded="true" />
+                <element signature="e#2127#2128#0" expanded="true" />
+                <element signature="e#2154#2155#0" expanded="true" />
+                <element signature="e#2194#2195#0" expanded="true" />
+                <element signature="e#2226#2227#0" expanded="true" />
+                <element signature="e#2264#2265#0" expanded="true" />
+                <element signature="e#2298#2299#0" expanded="true" />
+                <element signature="e#2352#2353#0" expanded="true" />
+                <element signature="e#2398#2399#0" expanded="true" />
+                <element signature="e#2437#2438#0" expanded="true" />
+                <element signature="e#2472#2473#0" expanded="true" />
+                <element signature="e#2528#2529#0" expanded="true" />
+                <element signature="e#2576#2577#0" expanded="true" />
+                <element signature="e#2608#2609#0" expanded="true" />
+                <element signature="e#2636#2637#0" expanded="true" />
+                <element signature="e#2678#2679#0" expanded="true" />
+                <element signature="e#2712#2713#0" expanded="true" />
+                <element signature="e#2750#2751#0" expanded="true" />
+                <element signature="e#2784#2785#0" expanded="true" />
+                <element signature="e#2838#2839#0" expanded="true" />
+                <element signature="e#2884#2885#0" expanded="true" />
+                <element signature="e#2924#2925#0" expanded="true" />
+                <element signature="e#2956#2957#0" expanded="true" />
+                <element signature="e#3010#3011#0" expanded="true" />
+                <element signature="e#3052#3053#0" expanded="true" />
+                <element signature="e#3093#3094#0" expanded="true" />
+                <element signature="e#3126#3127#0" expanded="true" />
+                <element signature="e#3182#3183#0" expanded="true" />
+                <element signature="e#3226#3227#0" expanded="true" />
+                <element signature="e#3268#3269#0" expanded="true" />
+                <element signature="e#3302#3303#0" expanded="true" />
+                <element signature="e#3360#3361#0" expanded="true" />
+                <element signature="e#3406#3407#0" expanded="true" />
+                <element signature="e#3447#3448#0" expanded="true" />
+                <element signature="e#3480#3481#0" expanded="true" />
+                <element signature="e#3536#3537#0" expanded="true" />
+                <element signature="e#3580#3581#0" expanded="true" />
+                <element signature="e#3623#3624#0" expanded="true" />
+                <element signature="e#3658#3659#0" expanded="true" />
+                <element signature="e#3718#3719#0" expanded="true" />
+                <element signature="e#3766#3767#0" expanded="true" />
+                <element signature="e#3811#3812#0" expanded="true" />
+                <element signature="e#3848#3849#0" expanded="true" />
+                <element signature="e#3912#3913#0" expanded="true" />
+                <element signature="e#3964#3965#0" expanded="true" />
+                <element signature="e#4006#4007#0" expanded="true" />
+                <element signature="e#4044#4045#0" expanded="true" />
+                <element signature="e#4106#4107#0" expanded="true" />
+                <element signature="e#4160#4161#0" expanded="true" />
+                <element signature="e#4208#4209#0" expanded="true" />
+                <element signature="e#4248#4249#0" expanded="true" />
+                <element signature="e#4318#4319#0" expanded="true" />
+                <element signature="e#4376#4377#0" expanded="true" />
+                <element signature="e#4415#4416#0" expanded="true" />
+                <element signature="e#4450#4451#0" expanded="true" />
+                <element signature="e#4506#4507#0" expanded="true" />
+                <element signature="e#4554#4555#0" expanded="true" />
+                <element signature="e#4596#4597#0" expanded="true" />
+                <element signature="e#4634#4635#0" expanded="true" />
+                <element signature="e#4696#4697#0" expanded="true" />
+                <element signature="e#4750#4751#0" expanded="true" />
+                <element signature="e#4785#4786#0" expanded="true" />
+                <element signature="e#4816#4817#0" expanded="true" />
+                <element signature="e#4864#4865#0" expanded="true" />
+                <element signature="e#4904#4905#0" expanded="true" />
+                <element signature="e#4952#4953#0" expanded="true" />
+                <element signature="e#4992#4993#0" expanded="true" />
+                <element signature="e#5062#5063#0" expanded="true" />
+                <element signature="e#5120#5121#0" expanded="true" />
+                <element signature="e#5178#5179#0" expanded="true" />
+                <element signature="e#5228#5229#0" expanded="true" />
+                <element signature="e#5454#5455#0" expanded="true" />
+                <element signature="e#5504#5505#0" expanded="true" />
+                <element signature="e#5736#5737#0" expanded="true" />
+                <element signature="e#5792#5793#0" expanded="true" />
+                <element signature="e#6042#6043#0" expanded="true" />
+                <element signature="e#6092#6093#0" expanded="true" />
+                <element signature="e#6324#6325#0" expanded="true" />
+                <element signature="e#6380#6381#0" expanded="true" />
+                <element signature="e#6632#6633#0" expanded="true" />
+                <element signature="e#6684#6685#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/vo/AmazonInventoryAgedReportVO.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="189">
+              <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
             </state>
           </provider>
         </entry>
@@ -241,8 +355,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>LOGGER</find>
-      <find>initInvokeGetStockFromAmazon</find>
       <find>logger</find>
       <find>resolutionInventoryAgedItem</find>
       <find>resolutionReportFile</find>
@@ -271,6 +383,8 @@
       <find>fileOutputOriginalVersion</find>
       <find>import com.itecheasy.core.amazon.getReportResult.AmazonStockReportVO;</find>
       <find>asin</find>
+      <find>同步库存报告</find>
+      <find>LOGGER</find>
     </findStrings>
     <replaceStrings>
       <replace>DateUtils</replace>
@@ -294,10 +408,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/MockIsRealGetStockReportFromAmazonImpl.java" />
-        <option value="$PROJECT_DIR$/.idea/vcs.xml" />
-        <option value="$PROJECT_DIR$/src/com/amazon/client/AmazonClient.java" />
-        <option value="$USER_HOME$/AppData/Local/Temp/HZ$D.602.249/osms_error.log" />
         <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/MapBean.java" />
         <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/isRealListInboundShipments.java" />
         <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/MockListInboundShipments.java" />
@@ -328,23 +438,27 @@
         <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/ReportFileToVoJson.java" />
         <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/ResolutionInventoryAgedItemReportImpl.java" />
         <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/ResolutionReportFileToVoJson.java" />
-        <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/AmazonStockItemReportFileToVoJsonImpl.java" />
-        <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/FileOutputOriginalVersionFactory.java" />
-        <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/IsRealGetStockReportFromAmazon.java" />
-        <option value="$PROJECT_DIR$/cfg/applicationContext.xml" />
         <option value="$PROJECT_DIR$/src/com/amazon/test/NewTest.java" />
-        <option value="$PROJECT_DIR$/cfg/deploy_config.properties" />
         <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/RealListInboundShipmentsImpl.java" />
         <option value="$PROJECT_DIR$/src/com/amazon/client/AmazonInboundClient.java" />
-        <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/MockGetStockReportFromAmazonImpl.java" />
         <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/vo/AmazonInventoryAgedReportVO.java" />
-        <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/ResolutionReportFile.java" />
         <option value="$PROJECT_DIR$/src/com/amazon/test/AmazonStockReportMain.java" />
-        <option value="$PROJECT_DIR$/src/com/amazon/client/AmazonReportClient.java" />
-        <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/RealGetStockReportFromAmazonImpl.java" />
-        <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/AmazonWebService.java" />
+        <option value="$PROJECT_DIR$/cfg/deploy_config.properties" />
+        <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/AmazonStockItemReportFileToVoJsonImpl.java" />
+        <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/ALLReportUltimateVO.java" />
         <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/AmazonWebServiceImpl.java" />
+        <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/AmazonWebService.java" />
+        <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/IsRealGetStockReportFromAmazon.java" />
+        <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/ResolutionReportFile.java" />
+        <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/MockGetStockReportFromAmazonImpl.java" />
+        <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/FileOutputOriginalVersionFactory.java" />
+        <option value="$PROJECT_DIR$/cfg/applicationContext.xml" />
+        <option value="$PROJECT_DIR$/src/com/amazon/client/AmazonReportClient.java" />
+        <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/ReportResolveFactory.java" />
+        <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/RealGetStockReportFromAmazonImpl.java" />
         <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/ResolutionInventoryAgedItemResolutionReportImpl.java" />
+        <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/vo/AmazonLogisticsForecastCostReportVO.java" />
+        <option value="$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/LogisticsForecastCostReportImpl.java" />
       </list>
     </option>
   </component>
@@ -376,11 +490,11 @@
       <select />
     </treeState>
   </component>
-  <component name="ProjectFrameBounds" extendedState="1">
-    <option name="x" value="-145" />
-    <option name="y" value="46" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="49" />
+    <option name="y" value="73" />
     <option name="width" value="1697" />
-    <option name="height" value="991" />
+    <option name="height" value="969" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -400,6 +514,43 @@
         </subPane>
       </pane>
       <pane id="AndroidView" />
+      <pane id="Scope">
+        <subPane subId="Project Files">
+          <expand>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="osms_am" type="cbb8eebc:String" user="osms_am" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="osms_am" type="cbb8eebc:String" user="osms_am" />
+              <item name="src" type="cbb8eebc:String" user="src" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="osms_am" type="cbb8eebc:String" user="osms_am" />
+              <item name="src" type="cbb8eebc:String" user="src" />
+              <item name="com" type="cbb8eebc:String" user="com" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="osms_am" type="cbb8eebc:String" user="osms_am" />
+              <item name="src" type="cbb8eebc:String" user="src" />
+              <item name="com" type="cbb8eebc:String" user="com" />
+              <item name="itecheasy" type="cbb8eebc:String" user="itecheasy" />
+            </path>
+            <path>
+              <item name="Root" type="cbb8eebc:String" user="Root" />
+              <item name="osms_am" type="cbb8eebc:String" user="osms_am" />
+              <item name="src" type="cbb8eebc:String" user="src" />
+              <item name="com" type="cbb8eebc:String" user="com" />
+              <item name="itecheasy" type="cbb8eebc:String" user="itecheasy" />
+              <item name="core/amazon" type="cbb8eebc:String" user="core/amazon" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -465,6 +616,25 @@
             <path>
               <item name="osms_am" type="b2602c69:ProjectViewProjectNode" />
               <item name="osms_am" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="com" type="462c0819:PsiDirectoryNode" />
+              <item name="itecheasy" type="462c0819:PsiDirectoryNode" />
+              <item name="amazon" type="462c0819:PsiDirectoryNode" />
+              <item name="isRealIvokeAmazon" type="462c0819:PsiDirectoryNode" />
+              <item name="resolveAmazonReport" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="osms_am" type="b2602c69:ProjectViewProjectNode" />
+              <item name="osms_am" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="com" type="462c0819:PsiDirectoryNode" />
+              <item name="itecheasy" type="462c0819:PsiDirectoryNode" />
+              <item name="amazon" type="462c0819:PsiDirectoryNode" />
+              <item name="vo" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="osms_am" type="b2602c69:ProjectViewProjectNode" />
+              <item name="osms_am" type="462c0819:PsiDirectoryNode" />
               <item name="test" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -477,49 +647,13 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope">
-        <subPane subId="Project Files">
-          <expand>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="osms_am" type="cbb8eebc:String" user="osms_am" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="osms_am" type="cbb8eebc:String" user="osms_am" />
-              <item name="src" type="cbb8eebc:String" user="src" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="osms_am" type="cbb8eebc:String" user="osms_am" />
-              <item name="src" type="cbb8eebc:String" user="src" />
-              <item name="com" type="cbb8eebc:String" user="com" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="osms_am" type="cbb8eebc:String" user="osms_am" />
-              <item name="src" type="cbb8eebc:String" user="src" />
-              <item name="com" type="cbb8eebc:String" user="com" />
-              <item name="itecheasy" type="cbb8eebc:String" user="itecheasy" />
-            </path>
-            <path>
-              <item name="Root" type="cbb8eebc:String" user="Root" />
-              <item name="osms_am" type="cbb8eebc:String" user="osms_am" />
-              <item name="src" type="cbb8eebc:String" user="src" />
-              <item name="com" type="cbb8eebc:String" user="com" />
-              <item name="itecheasy" type="cbb8eebc:String" user="itecheasy" />
-              <item name="core/amazon" type="cbb8eebc:String" user="core/amazon" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="SearchEverywhereHistoryKey" value="line&#9;ACTION&#9;EditorToggleShowLineNumbers" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1534421040652" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1534928637459" />
     <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary" value="Arquillian JUnit4" />
     <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.Arquillian JUnit4" value="" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/src/com/amazon/test/AmazonStockReportMain.java" />
@@ -535,6 +669,12 @@
     <key name="CreateTestDialog.RecentsKey">
       <recent name="com.amazon.client" />
     </key>
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="com.itecheasy.core.amazon.vo" />
+    </key>
+    <key name="CreateTestDialog.Recents.Supers">
+      <recent name="" />
+    </key>
     <key name="CopyClassDialog.RECENTS_KEY">
       <recent name="com.amazon.test" />
       <recent name="com.amazon.test.testVO" />
@@ -545,12 +685,6 @@
       <recent name="E:\osms_am\src\com\amazon\test\testVO" />
       <recent name="E:\osms_am\src\com\amazon\test" />
       <recent name="E:\osms_am\src\com\amazon\testResource" />
-    </key>
-    <key name="CreateTestDialog.Recents.Supers">
-      <recent name="" />
-    </key>
-    <key name="CreateClassDialog.RecentsKey">
-      <recent name="com.itecheasy.core.amazon.vo" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -773,9 +907,9 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.RealGetStockReportFromAmazonImpl" />
         <item itemvalue="Application.ResolutionInventoryAgedItemResolutionReportImpl" />
         <item itemvalue="Application.AmazonInboundClient" />
-        <item itemvalue="Application.RealGetStockReportFromAmazonImpl" />
         <item itemvalue="Application.AmazonReportClient" />
         <item itemvalue="Application.testCase0074" />
       </list>
@@ -889,7 +1023,9 @@
       <workItem from="1534377861550" duration="10985000" />
       <workItem from="1534465256225" duration="3126000" />
       <workItem from="1534723864790" duration="2182000" />
-      <workItem from="1534485974542" duration="796000" />
+      <workItem from="1534485974542" duration="2288000" />
+      <workItem from="1535155692211" duration="14126000" />
+      <workItem from="1534896245984" duration="22788000" />
     </task>
     <task id="LOCAL-00001" summary="3.9.1&#9;更新货运单号至亚马逊&#10;3.9.2&#9;更新亚马逊货件状态为已发货">
       <created>1530080960533</created>
@@ -1147,7 +1283,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="648874000" />
+    <option name="totallyTimeSpent" value="687280000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1159,32 +1295,32 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-145" y="46" width="1697" height="991" extended-state="1" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.5126812" visible="true" weight="0.3023824" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.50541127" visible="true" weight="0.27025586" />
       <window_info id="Persistence" order="1" side_tool="true" weight="0.21055438" />
-      <window_info id="Structure" order="2" sideWeight="0.48731884" side_tool="true" weight="0.2913867" />
+      <window_info id="Structure" order="2" sideWeight="0.49458873" side_tool="true" weight="0.27025586" />
       <window_info id="Designer" order="3" />
-      <window_info id="JRebel" order="4" sideWeight="0.4506579" side_tool="true" weight="0.2758398" />
+      <window_info id="JRebel" order="4" sideWeight="0.49458873" side_tool="true" weight="0.27025586" />
       <window_info id="Image Layers" order="5" />
       <window_info id="UI Designer" order="6" />
-      <window_info id="Favorites" order="7" sideWeight="0.4918033" side_tool="true" weight="0.28248224" />
-      <window_info id="Web" order="8" side_tool="true" />
+      <window_info id="Favorites" order="7" sideWeight="0.49458873" side_tool="true" weight="0.27025586" />
+      <window_info id="Web" order="8" sideWeight="0.49458873" side_tool="true" weight="0.27025586" />
       <window_info id="Capture Tool" order="9" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32894737" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.22835498" />
-      <window_info anchor="bottom" id="SVN Properties" order="3" weight="0.3293979" />
-      <window_info active="true" anchor="bottom" id="Debug" order="4" visible="true" weight="0.33760187" />
-      <window_info anchor="bottom" id="Cvs" order="5" weight="0.25" />
-      <window_info anchor="bottom" id="Inspection" order="6" weight="0.4" />
+      <window_info anchor="bottom" id="SVN Properties" order="2" weight="0.3293979" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.44613436" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="Run" order="6" weight="0.19480519" />
       <window_info anchor="bottom" id="TODO" order="7" weight="0.32900432" />
       <window_info anchor="bottom" id="Application Servers" order="8" weight="0.32879817" />
-      <window_info anchor="bottom" id="Terminal" order="9" weight="0.328877" />
+      <window_info anchor="bottom" id="Terminal" order="9" weight="0.3282636" />
       <window_info anchor="bottom" id="Java Enterprise" order="10" weight="0.32824427" />
       <window_info anchor="bottom" id="Database Changes" order="11" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="12" sideWeight="0.49970776" weight="0.28521538" />
+      <window_info anchor="bottom" id="Version Control" order="12" sideWeight="0.49970776" weight="0.28463203" />
       <window_info anchor="bottom" id="Spring" order="13" weight="0.32993197" />
       <window_info anchor="bottom" id="Messages" order="14" weight="0.27380952" />
       <window_info anchor="bottom" id="Problems" order="15" weight="0.32886723" />
@@ -1194,8 +1330,8 @@
       <window_info anchor="bottom" id="Event Log" order="19" side_tool="true" weight="0.3289941" />
       <window_info anchor="bottom" id="Database Console" order="20" weight="0.35600907" />
       <window_info anchor="bottom" id="SQL Generator" order="21" weight="0.33333334" />
-      <window_info anchor="bottom" id="FindBugs-IDEA" order="22" weight="0.32911393" />
-      <window_info anchor="bottom" id="CheckStyle" order="23" weight="0.32911393" />
+      <window_info anchor="bottom" id="FindBugs-IDEA" order="22" weight="0.32900432" />
+      <window_info anchor="bottom" id="CheckStyle" order="23" weight="0.3282636" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -1416,13 +1552,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/com/amazon/client/AmazonReportClient.java</url>
-          <line>117</line>
+          <line>118</line>
           <properties />
           <option name="timeStamp" value="50" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/com/amazon/client/AmazonReportClient.java</url>
-          <line>208</line>
+          <line>209</line>
           <properties />
           <option name="timeStamp" value="53" />
         </line-breakpoint>
@@ -1445,19 +1581,19 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/RealGetStockReportFromAmazonImpl.java</url>
-          <line>62</line>
+          <line>77</line>
           <properties />
           <option name="timeStamp" value="71" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/com/amazon/client/AmazonReportClient.java</url>
-          <line>347</line>
+          <line>348</line>
           <properties />
           <option name="timeStamp" value="75" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/com/amazon/client/AmazonReportClient.java</url>
-          <line>260</line>
+          <line>261</line>
           <properties />
           <option name="timeStamp" value="76" />
         </line-breakpoint>
@@ -1487,25 +1623,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/RealGetStockReportFromAmazonImpl.java</url>
-          <line>35</line>
-          <properties />
-          <option name="timeStamp" value="90" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/RealGetStockReportFromAmazonImpl.java</url>
-          <line>47</line>
+          <line>49</line>
           <properties />
           <option name="timeStamp" value="91" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/ResolutionInventoryAgedItemResolutionReportImpl.java</url>
-          <line>280</line>
-          <properties />
-          <option name="timeStamp" value="104" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/ResolutionInventoryAgedItemResolutionReportImpl.java</url>
-          <line>456</line>
+          <line>206</line>
           <properties />
           <option name="timeStamp" value="107" />
         </line-breakpoint>
@@ -1516,97 +1640,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/com/printMethod/annotations/LoggerNameDescription.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="10" selection-start-line="10" selection-end-line="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/lib/cxf/cxf-2.1.2.jar!/org/apache/cxf/service/invoker/AbstractInvoker.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="148">
-          <caret line="106" selection-start-line="106" selection-end-line="106" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/amazonaws/mws/MarketplaceWebServiceClient.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="820">
-          <caret line="1433" column="40" selection-start-line="1433" selection-start-column="40" selection-end-line="1433" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/client/AmazonGetReportStep4.java" />
-    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/client/AmazonGetReportStep4Impl.java" />
-    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/vo/AddressVO.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="168">
-          <caret line="8" column="13" selection-start-line="8" selection-start-column="13" selection-end-line="8" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://D:/jdk16010/src.zip!/java/lang/Override.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="22" column="18" selection-start-line="22" selection-start-column="18" selection-end-line="22" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/lib/spring/spring.jar!/org/springframework/beans/factory/FactoryBean.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="84">
-          <caret line="7" column="17" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/FileOutputOriginalVersionFactory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="88">
-          <caret line="24" column="6" lean-forward="true" selection-start-line="24" selection-start-column="6" selection-end-line="24" selection-end-column="6" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#875#876#0" expanded="true" />
-            <element signature="e#921#922#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$PROJECT_DIR$/lib/spring/spring.jar!/org/springframework/beans/factory/support/AbstractAutowireCapableBeanFactory.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="164">
-          <caret line="913" selection-start-line="913" selection-end-line="913" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cfg/applicationContext.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="174">
-          <caret line="59" column="4" selection-start-line="59" selection-start-column="4" selection-end-line="59" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/deploy_config.properties">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="441">
-          <caret line="21" selection-start-line="21" selection-end-line="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://H:/3.7/com/itecheasy/core/amazon/AmazonWebServiceImpl.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="280">
-          <caret line="351" column="15" selection-start-line="351" selection-start-column="15" selection-end-line="351" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/production/osms_am/com/itecheasy/core/amazon/AmazonWebServiceImpl.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="168">
-          <caret line="357" selection-start-line="357" selection-end-line="357" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/getReportvo/RequestReportVO.java" />
     <entry file="jar://$PROJECT_DIR$/lib/jackson-mapper-asl-1.9.0.jar!/org/codehaus/jackson/map/ObjectMapper.class">
       <provider selected="true" editor-type-id="text-editor">
@@ -1620,13 +1653,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="147">
           <caret line="22" column="64" lean-forward="true" selection-start-line="22" selection-start-column="64" selection-end-line="22" selection-end-column="64" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/AmazonConfigInfo.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="294">
-          <caret line="28" column="15" selection-start-line="28" selection-start-column="15" selection-end-line="28" selection-end-column="15" />
         </state>
       </provider>
     </entry>
@@ -1672,20 +1698,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="186">
           <caret line="3380" selection-start-line="3380" selection-end-line="3380" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/vo/AmazonInventoryAgedReportVO.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="370">
-          <caret line="515" column="18" selection-start-line="515" selection-start-column="18" selection-end-line="515" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cfg/deploy_config.properties">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="394">
-          <caret line="38" selection-start-line="38" selection-end-line="38" />
         </state>
       </provider>
     </entry>
@@ -1738,13 +1750,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/AmazonStockItemReportFileToVoJsonImpl.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="273">
-          <caret line="15" column="18" selection-start-line="15" selection-start-column="18" selection-end-line="15" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/MockListInboundShipmentsImpl.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="784">
@@ -1790,20 +1795,145 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/AmazonWebServiceImpl.java">
+    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/RealListInboundShipmentsImpl.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6384">
-          <caret line="334" selection-start-line="334" selection-end-line="334" />
+        <state relative-caret-position="483">
+          <caret line="28" column="56" selection-start-line="28" selection-start-column="56" selection-end-line="28" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/lib/commons-io-1.4.jar!/org/apache/commons/io/IOUtils.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="253">
+          <caret line="72" column="23" selection-start-line="72" selection-start-column="23" selection-end-line="72" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cfg/rebel.xml">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cfg/deploy_config.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="643">
+          <caret line="35" selection-start-line="35" selection-end-line="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$PROJECT_DIR$/lib/commons-io-1.4.jar!/org/apache/commons/io/FileUtils.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="278">
+          <caret line="599" column="23" selection-start-line="599" selection-start-column="23" selection-end-line="599" selection-end-column="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/vo/RequestReportVO.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="189">
+          <caret line="9" column="13" selection-start-line="9" selection-start-column="13" selection-end-line="9" selection-end-column="13" />
+          <folding>
+            <element signature="e#521#522#0" expanded="true" />
+            <element signature="e#554#555#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/AmazonConfigInfo.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="168">
+          <caret line="8" column="13" selection-start-line="8" selection-start-column="13" selection-end-line="8" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/ALLReportUltimateVO.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="924">
+          <caret line="60" column="5" lean-forward="true" selection-start-line="60" selection-start-column="5" selection-end-line="60" selection-end-column="5" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1110#1111#0" expanded="true" />
+            <element signature="e#1158#1159#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/AmazonWebService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="547">
+          <caret line="170" column="39" selection-start-line="170" selection-start-column="39" selection-end-line="170" selection-end-column="39" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/amazon/client/AmazonReportClient.java">
+    <entry file="uml://JAVA/com.itecheasy.core.amazon.isRealIvokeAmazon">
+      <provider selected="true" editor-type-id="UmlEditorProvider">
+        <state>
+          <ID>JAVA</ID>
+          <OriginalElement>com.itecheasy.core.amazon.isRealIvokeAmazon</OriginalElement>
+          <nodes>
+            <node x="" y="">com.itecheasy.core.amazon.isRealIvokeAmazon.IsRealGetStockReportFromAmazon</node>
+            <node x="" y="">com.itecheasy.core.amazon.isRealIvokeAmazon.RealGetStockReportFromAmazonImpl</node>
+            <node x="" y="">com.itecheasy.core.amazon.isRealIvokeAmazon.IsRealGetStockReportFromAmazon.GetReportType</node>
+            <node x="" y="">com.itecheasy.core.amazon.isRealIvokeAmazon.MockListInboundShipmentsImpl</node>
+            <node x="" y="">com.itecheasy.core.amazon.isRealIvokeAmazon.resolveAmazonReport</node>
+            <node x="" y="">com.itecheasy.core.amazon.isRealIvokeAmazon.IsRealListInboundShipments</node>
+            <node x="" y="">com.itecheasy.core.amazon.isRealIvokeAmazon.Base</node>
+            <node x="" y="">com.itecheasy.core.amazon.isRealIvokeAmazon.MockGetStockReportFromAmazonImpl</node>
+            <node x="" y="">com.itecheasy.core.amazon.isRealIvokeAmazon.RealListInboundShipmentsImpl</node>
+          </nodes>
+          <notes />
+          <edges />
+          <settings layout="Hierarchic Group" zoom="0.9999999999999997" x="1744.6428571428582" y="271.0456349206337" />
+          <SelectedNodes />
+          <Categories>
+            <Category>Constructors</Category>
+            <Category>Methods</Category>
+            <Category>Properties</Category>
+            <Category>Inner Classes</Category>
+            <Category>Fields</Category>
+          </Categories>
+          <SCOPE>All</SCOPE>
+          <VISIBILITY>private</VISIBILITY>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/WebRoot/WEB-INF/web.xml">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/Base.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="126">
-          <caret line="31" column="3" selection-start-line="31" selection-start-column="3" selection-end-line="31" selection-end-column="3" />
+        <state relative-caret-position="283">
+          <caret line="20" column="31" selection-start-line="20" selection-start-column="31" selection-end-line="20" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/FileOutputOriginalVersionFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="94">
+          <caret line="9" column="24" lean-forward="true" selection-start-line="9" selection-start-column="24" selection-end-line="9" selection-end-column="24" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1096#1097#0" expanded="true" />
+            <element signature="e#1156#1157#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/MockGetStockReportFromAmazonImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="38">
+          <caret line="43" column="32" lean-forward="true" selection-start-line="43" selection-start-column="32" selection-end-line="43" selection-end-column="32" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/AmazonWebServiceImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="113">
+          <caret line="443" column="106" selection-start-line="443" selection-start-column="106" selection-end-line="443" selection-end-column="106" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -1812,65 +1942,222 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/IsRealGetStockReportFromAmazon.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="966">
-          <caret line="51" column="11" selection-start-line="51" selection-start-column="11" selection-end-line="51" selection-end-column="11" />
+        <state relative-caret-position="315">
+          <caret line="21" column="15" selection-start-line="21" selection-start-column="15" selection-end-line="21" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/AmazonStockItemReportFileToVoJsonImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="189">
+          <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cfg/applicationContext.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="470">
+          <caret line="90" column="55" selection-start-line="90" selection-start-column="28" selection-end-line="90" selection-end-column="55" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/amazon/client/AmazonReportClient.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="514">
+          <caret line="553" column="18" selection-start-line="553" selection-start-column="18" selection-end-line="553" selection-end-column="18" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#25997#26005#0" expanded="true" />
+            <element signature="e#28755#28778#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/ReportResolveFactory.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="231">
+          <caret line="11" column="2" selection-start-line="11" selection-start-column="2" selection-end-line="15" selection-end-column="1" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/common/util/CollectionUtils.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="319">
+          <caret line="59" column="20" selection-start-line="59" selection-start-column="20" selection-end-line="59" selection-end-column="20" />
+          <folding>
+            <element signature="e#1016#1017#0" expanded="true" />
+            <element signature="e#1066#1067#0" expanded="true" />
+            <element signature="e#1188#1189#0" expanded="true" />
+            <element signature="e#1216#1217#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/RealGetStockReportFromAmazonImpl.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2730">
-          <caret line="143" column="14" selection-start-line="143" selection-start-column="14" selection-end-line="143" selection-end-column="14" />
+        <state relative-caret-position="458">
+          <caret line="224" column="79" selection-start-line="224" selection-start-column="79" selection-end-line="224" selection-end-column="79" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#893#923#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/RealListInboundShipmentsImpl.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="483">
-          <caret line="28" column="56" selection-start-line="28" selection-start-column="56" selection-end-line="28" selection-end-column="56" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/AmazonWebService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="63">
-          <caret line="9" selection-start-line="9" selection-end-line="9" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/Base.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="336">
-          <caret line="20" column="31" selection-start-line="20" selection-start-column="31" selection-end-line="20" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/MockGetStockReportFromAmazonImpl.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1323">
-          <caret line="71" selection-start-line="71" selection-end-line="71" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/ResolutionReportFile.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="273">
-          <caret line="15" column="25" selection-start-line="15" selection-start-column="25" selection-end-line="15" selection-end-column="25" />
+        <state relative-caret-position="231">
+          <caret line="13" column="41" selection-start-line="13" selection-start-column="41" selection-end-line="13" selection-end-column="41" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/ResolutionInventoryAgedItemResolutionReportImpl.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="424">
-          <caret line="468" column="43" selection-start-line="468" selection-start-column="43" selection-end-line="468" selection-end-column="43" />
+        <state relative-caret-position="787">
+          <caret line="246" column="5" lean-forward="true" selection-start-line="18" selection-end-line="246" selection-end-column="5" />
           <folding>
             <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/vo/AmazonInventoryAgedReportVO.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="189">
+          <caret line="11" column="13" selection-start-line="11" selection-start-column="13" selection-end-line="11" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/vo/AmazonLogisticsForecastCostReportVO.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="63">
+          <caret line="3" column="17" selection-start-line="3" selection-start-column="17" selection-end-line="3" selection-end-column="17" />
+          <folding>
+            <element signature="e#1300#1301#0" expanded="true" />
+            <element signature="e#1325#1326#0" expanded="true" />
+            <element signature="e#1358#1359#0" expanded="true" />
+            <element signature="e#1386#1387#0" expanded="true" />
+            <element signature="e#1420#1421#0" expanded="true" />
+            <element signature="e#1449#1450#0" expanded="true" />
+            <element signature="e#1494#1495#0" expanded="true" />
+            <element signature="e#1530#1531#0" expanded="true" />
+            <element signature="e#1564#1565#0" expanded="true" />
+            <element signature="e#1596#1597#0" expanded="true" />
+            <element signature="e#1644#1645#0" expanded="true" />
+            <element signature="e#1686#1687#0" expanded="true" />
+            <element signature="e#1719#1720#0" expanded="true" />
+            <element signature="e#1750#1751#0" expanded="true" />
+            <element signature="e#1796#1797#0" expanded="true" />
+            <element signature="e#1836#1837#0" expanded="true" />
+            <element signature="e#1866#1867#0" expanded="true" />
+            <element signature="e#1892#1893#0" expanded="true" />
+            <element signature="e#1930#1931#0" expanded="true" />
+            <element signature="e#1960#1961#0" expanded="true" />
+            <element signature="e#1992#1993#0" expanded="true" />
+            <element signature="e#2020#2021#0" expanded="true" />
+            <element signature="e#2062#2063#0" expanded="true" />
+            <element signature="e#2096#2097#0" expanded="true" />
+            <element signature="e#2127#2128#0" expanded="true" />
+            <element signature="e#2154#2155#0" expanded="true" />
+            <element signature="e#2194#2195#0" expanded="true" />
+            <element signature="e#2226#2227#0" expanded="true" />
+            <element signature="e#2264#2265#0" expanded="true" />
+            <element signature="e#2298#2299#0" expanded="true" />
+            <element signature="e#2352#2353#0" expanded="true" />
+            <element signature="e#2398#2399#0" expanded="true" />
+            <element signature="e#2437#2438#0" expanded="true" />
+            <element signature="e#2472#2473#0" expanded="true" />
+            <element signature="e#2528#2529#0" expanded="true" />
+            <element signature="e#2576#2577#0" expanded="true" />
+            <element signature="e#2608#2609#0" expanded="true" />
+            <element signature="e#2636#2637#0" expanded="true" />
+            <element signature="e#2678#2679#0" expanded="true" />
+            <element signature="e#2712#2713#0" expanded="true" />
+            <element signature="e#2750#2751#0" expanded="true" />
+            <element signature="e#2784#2785#0" expanded="true" />
+            <element signature="e#2838#2839#0" expanded="true" />
+            <element signature="e#2884#2885#0" expanded="true" />
+            <element signature="e#2924#2925#0" expanded="true" />
+            <element signature="e#2956#2957#0" expanded="true" />
+            <element signature="e#3010#3011#0" expanded="true" />
+            <element signature="e#3052#3053#0" expanded="true" />
+            <element signature="e#3093#3094#0" expanded="true" />
+            <element signature="e#3126#3127#0" expanded="true" />
+            <element signature="e#3182#3183#0" expanded="true" />
+            <element signature="e#3226#3227#0" expanded="true" />
+            <element signature="e#3268#3269#0" expanded="true" />
+            <element signature="e#3302#3303#0" expanded="true" />
+            <element signature="e#3360#3361#0" expanded="true" />
+            <element signature="e#3406#3407#0" expanded="true" />
+            <element signature="e#3447#3448#0" expanded="true" />
+            <element signature="e#3480#3481#0" expanded="true" />
+            <element signature="e#3536#3537#0" expanded="true" />
+            <element signature="e#3580#3581#0" expanded="true" />
+            <element signature="e#3623#3624#0" expanded="true" />
+            <element signature="e#3658#3659#0" expanded="true" />
+            <element signature="e#3718#3719#0" expanded="true" />
+            <element signature="e#3766#3767#0" expanded="true" />
+            <element signature="e#3811#3812#0" expanded="true" />
+            <element signature="e#3848#3849#0" expanded="true" />
+            <element signature="e#3912#3913#0" expanded="true" />
+            <element signature="e#3964#3965#0" expanded="true" />
+            <element signature="e#4006#4007#0" expanded="true" />
+            <element signature="e#4044#4045#0" expanded="true" />
+            <element signature="e#4106#4107#0" expanded="true" />
+            <element signature="e#4160#4161#0" expanded="true" />
+            <element signature="e#4208#4209#0" expanded="true" />
+            <element signature="e#4248#4249#0" expanded="true" />
+            <element signature="e#4318#4319#0" expanded="true" />
+            <element signature="e#4376#4377#0" expanded="true" />
+            <element signature="e#4415#4416#0" expanded="true" />
+            <element signature="e#4450#4451#0" expanded="true" />
+            <element signature="e#4506#4507#0" expanded="true" />
+            <element signature="e#4554#4555#0" expanded="true" />
+            <element signature="e#4596#4597#0" expanded="true" />
+            <element signature="e#4634#4635#0" expanded="true" />
+            <element signature="e#4696#4697#0" expanded="true" />
+            <element signature="e#4750#4751#0" expanded="true" />
+            <element signature="e#4785#4786#0" expanded="true" />
+            <element signature="e#4816#4817#0" expanded="true" />
+            <element signature="e#4864#4865#0" expanded="true" />
+            <element signature="e#4904#4905#0" expanded="true" />
+            <element signature="e#4952#4953#0" expanded="true" />
+            <element signature="e#4992#4993#0" expanded="true" />
+            <element signature="e#5062#5063#0" expanded="true" />
+            <element signature="e#5120#5121#0" expanded="true" />
+            <element signature="e#5178#5179#0" expanded="true" />
+            <element signature="e#5228#5229#0" expanded="true" />
+            <element signature="e#5454#5455#0" expanded="true" />
+            <element signature="e#5504#5505#0" expanded="true" />
+            <element signature="e#5736#5737#0" expanded="true" />
+            <element signature="e#5792#5793#0" expanded="true" />
+            <element signature="e#6042#6043#0" expanded="true" />
+            <element signature="e#6092#6093#0" expanded="true" />
+            <element signature="e#6324#6325#0" expanded="true" />
+            <element signature="e#6380#6381#0" expanded="true" />
+            <element signature="e#6632#6633#0" expanded="true" />
+            <element signature="e#6684#6685#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/CancelOrderBO.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="168">
+          <caret line="8" column="13" selection-start-line="8" selection-start-column="13" selection-end-line="8" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/com/itecheasy/core/amazon/isRealIvokeAmazon/resolveAmazonReport/LogisticsForecastCostReportImpl.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="609">
+          <caret line="86" column="16" selection-start-line="86" selection-start-column="16" selection-end-line="86" selection-end-column="16" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#1656#1693#0" expanded="true" />
           </folding>
         </state>
       </provider>

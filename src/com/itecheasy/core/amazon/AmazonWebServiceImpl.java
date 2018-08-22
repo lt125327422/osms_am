@@ -401,7 +401,7 @@ public class AmazonWebServiceImpl extends Base implements AmazonWebService {
 
 
 
-	//这个是通用版本的
+    //临时版本
 	//统一异常处理以后再考虑
 	@Override
 	@LoggerNameDescription(methodNameDescription = "syncAmazonStockGetAllReport")
@@ -431,6 +431,38 @@ public class AmazonWebServiceImpl extends Base implements AmazonWebService {
 			throw exp;
 		}
 	}
+
+
+    //这个是最终通用版本的
+    //统一异常处理以后再考虑
+    @Override
+    @LoggerNameDescription(methodNameDescription = "getAllReportUltimate")
+    public ALLReportUltimateVO getAllReportUltimate(RequestReportVO step1VO, AmazonConfigInfo api) throws Exception {
+        try {
+            LOGGER.info("start call amazon get report-----------------------");
+
+            ALLReportUltimateVO reportAllResultUltimateRTX = super.isRealGetStockReportFromAmazon.getReportAllResultUltimateRTX(step1VO, api);
+
+            LOGGER.info("end call amazon get report-----------------------");
+            return reportAllResultUltimateRTX;
+        } catch (InterruptedException e) {
+            LOGGER.error("sleep线程被中断，同步失败_店铺ID:"+step1VO.getShopId() +",sellerID:"+api.getSellerID());
+            LOGGER.error(e.getMessage(),e);
+            throw e;
+        } catch (IOException e) {
+            LOGGER.error("读取文件错误或备份失败，同步失败_店铺ID:"+step1VO.getShopId()+",sellerID:"+api.getSellerID());
+            LOGGER.error(e.getMessage(),e);
+            throw e;
+        }catch (MarketplaceWebServiceException e) {
+            LOGGER.error("与亚马逊的连接失败，调用亚马逊失败错误，同步失败_店铺ID:"+step1VO.getShopId()+",sellerID:"+api.getSellerID());
+            LOGGER.error(e.getMessage(),e);
+            throw e;
+        }catch (Exception exp) {
+            LOGGER.error("未知异常错误，同步失败_店铺ID:"+step1VO.getShopId()+",sellerID:"+api.getSellerID());
+            LOGGER.error(exp.getMessage(),exp);
+            throw exp;
+        }
+    }
 
 
 

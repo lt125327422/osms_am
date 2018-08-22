@@ -1,6 +1,7 @@
 package com.itecheasy.core.amazon.isRealIvokeAmazon;
 
 import com.amazonaws.mws.MarketplaceWebServiceException;
+import com.itecheasy.core.amazon.ALLReportUltimateVO;
 import com.itecheasy.core.amazon.AmazonConfigInfo;
 import com.itecheasy.core.amazon.vo.RequestReportVO;
 
@@ -15,7 +16,8 @@ import java.util.List;
 public interface IsRealGetStockReportFromAmazon {
     public enum GetReportType{
         获取亚马逊商品库存报告(0,"_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_"),
-        获取亚马逊库龄报告(1,"_GET_FBA_INVENTORY_AGED_DATA_");
+        获取亚马逊库龄报告(1,"_GET_FBA_INVENTORY_AGED_DATA_"),
+        亚马逊物流预计费用报告(2,"_GET_FBA_ESTIMATED_FBA_FEES_TXT_DATA_");
         int code;
         String enumType;
 
@@ -49,8 +51,10 @@ public interface IsRealGetStockReportFromAmazon {
     String getReportAllResultUltimate(RequestReportVO step1VO, AmazonConfigInfo api) throws MarketplaceWebServiceException, InterruptedException, IOException;
 
 
-    //读取txt报告文件
-//    @Deprecated
-//    List<AmazonInventoryAgedReportVO> fileOutputOriginalVersion(List<String> pathnameList,Integer shopId);
+
+    ALLReportUltimateVO getReportAllResultUltimateRTX(RequestReportVO step1VO, AmazonConfigInfo api) throws MarketplaceWebServiceException, InterruptedException, IOException;
+
+
+
 
 }
