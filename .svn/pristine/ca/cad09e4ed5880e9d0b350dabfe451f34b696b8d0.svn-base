@@ -1,0 +1,104 @@
+package com.itecheasy.core.amazon.isRealIvokeAmazon.resolveAmazonReport;
+
+import com.amazon.client.AmazonReportClient;
+import com.itecheasy.core.amazon.vo.AmazonInventoryAgedReportVO;
+import org.apache.log4j.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
+
+import java.io.*;
+import java.util.*;
+
+/**
+ * @Auther: liteng
+ * @Date: 2018/8/10 11:33
+ * @Description: InventoryAgedItem的解析
+ */
+public class ResolutionInventoryAgedItemResolutionReportImpl implements ResolutionReportFile {
+
+    private static final Logger LOGGER = Logger.getLogger(ResolutionInventoryAgedItemResolutionReportImpl.class);
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    //FileToVoJson
+    @Override
+    public String FileToJson( List<String> filePathS, Integer shopId,Map<String, Integer> indexMap) throws IOException {
+        List<AmazonInventoryAgedReportVO> reportFormList = new ArrayList<AmazonInventoryAgedReportVO>(); //所有的报告文件绝对路径
+        for (String filePath : filePathS) {
+            InputStreamReader reader = new InputStreamReader(new FileInputStream(new File(filePath)));
+            BufferedReader br = new BufferedReader(reader);
+            String line = "";
+            line = br.readLine();    //读取第一行
+            line = br.readLine();   //第二行开始才是数据
+            while (line != null) {
+                String[] splitSingle = line.split("\t"); //取得每一行的每一个
+                List<String> single = Arrays.asList(splitSingle);
+                AmazonInventoryAgedReportVO amazonInventoryAgedReportVO = new AmazonInventoryAgedReportVO();
+                amazonInventoryAgedReportVO.setFnsku(single.get(indexMap.get("fnsku")));
+                amazonInventoryAgedReportVO.setProductName(single.get(indexMap.get("productName")));
+                amazonInventoryAgedReportVO.setCondition(single.get(indexMap.get("condition")));
+                amazonInventoryAgedReportVO.setSku(single.get(indexMap.get("sku")));
+                amazonInventoryAgedReportVO.setShopId(shopId);
+                Date date = new Date();
+                amazonInventoryAgedReportVO.setSyncLast(date);
+                amazonInventoryAgedReportVO.setSyncFirst(date);
+
+
+
+    //            if (single.get(indexMap.get("yourPrice")) != null && !"".equalsIgnoreCase(single.get(indexMap.get("yourPrice")).trim())) {
+    //                amazonInventoryAgedReportVO.setYourPrice(new BigDecimal(single.get(indexMap.get("yourPrice"))));
+    //            }
+    //            if (single.get(indexMap.get("perUnitVolume")) != null && !"".equalsIgnoreCase(single.get(indexMap.get("perUnitVolume")).trim())) {
+    //                amazonInventoryAgedReportVO.setPerUnitVolume(new BigDecimal(single.get(indexMap.get("perUnitVolume"))));
+    //            }
+    //            amazonInventoryAgedReportVO.setMfnListingExists("No".equalsIgnoreCase(single.get(indexMap.get("mfnListingExists"))) ? 0 : 1);
+    //            if (single.get(indexMap.get("mfnFulfillableQuantity")) != null && !"".equalsIgnoreCase(single.get(indexMap.get("mfnFulfillableQuantity")))) {
+    //                amazonInventoryAgedReportVO.setMfnFulfillableQuantity(Integer.valueOf(single.get(indexMap.get("mfnFulfillableQuantity"))));
+    //            }
+    //            amazonInventoryAgedReportVO.setAfnListingExists("No".equalsIgnoreCase(single.get(indexMap.get("afnListingExists"))) ? 0 : 1);
+
+                reportFormList.add(amazonInventoryAgedReportVO);
+                line = br.readLine(); // 一次读入一行数据
+            }
+        }
+
+        LOGGER.error("completeSync--------shopId:"+shopId+"-------------get amazon reportStock step4，resolve file  "+filePathS);
+
+        //最后转为json返回
+        return MAPPER.writeValueAsString(reportFormList);
+
+    }
+    /**
+     * 根据报告来过去对应字段的下标
+     * @param filePath  传入第一行，之后分割
+     * @return 一个对应位置的map
+     *
+     */
+    @Override
+    public Map<String,Integer> getReportIndex(String filePath) throws IOException {
+        InputStreamReader reader = new InputStreamReader(new FileInputStream(new File(filePath))); // 建立一个输入流对象reader
+        BufferedReader br = new BufferedReader(reader);
+        String line = br.readLine();    //读取第一行
+//        String[] splitRows = line.split("\r\n");  //根据换行符来分割，得到每行的数据
+//        String[] splitRowFirst = splitRows[0].split("\t"); //取得每一行的每一个
+        String[] splitRowFirst = line.split("\t"); //取得每一行的每一个
+        List<String> singleFirst = Arrays.asList(splitRowFirst);
+        int sku = singleFirst.indexOf("sku");
+        int fnsku = singleFirst.indexOf("fnsku");
+        int asin = singleFirst.indexOf("asin");
+        int productName = singleFirst.indexOf("product-name");
+        int condition = singleFirst.indexOf("condition");
+        int yourPrice = singleFirst.indexOf("your-price");
+
+
+        Map<String,Integer> indexMap = new HashMap<String, Integer>();
+        indexMap.put("sku",sku);
+        indexMap.put("fnsku",fnsku);
+        indexMap.put("asin",asin);
+        indexMap.put("productName",productName);
+        indexMap.put("condition",condition);
+        indexMap.put("yourPrice",yourPrice);
+
+        return indexMap;
+
+    }
+
+}

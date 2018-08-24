@@ -1,0 +1,39 @@
+package com.itecheasy.core.amazon.isRealIvokeAmazon;
+
+import com.amazon.client.AmazonInboundClient;
+import com.itecheasy.core.amazon.AmazonConfigInfo;
+import com.itecheasy.core.amazon.ListInboundShipmentsResultVO;
+import com.itecheasy.core.amazon.vo.AmazonShipmentStatusListVO;
+import org.apache.log4j.Logger;
+
+/**
+ * @Auther: liteng
+ * @Date: 2018/7/20 10:08
+ * @Description: real call amazon
+ */
+public class RealListInboundShipmentsImpl implements IsRealListInboundShipments {
+
+    private static final Logger LOGGER = Logger.getLogger(RealListInboundShipmentsImpl.class);
+
+    @Override
+    public ListInboundShipmentsResultVO listInboundShipments(AmazonConfigInfo api, AmazonShipmentStatusListVO amazonShipmentStatusListVO) {
+       try {
+           ListInboundShipmentsResultVO resultVO = AmazonInboundClient.listInboundShipments(api, amazonShipmentStatusListVO);
+           return resultVO;
+       }catch (Exception e){
+           LOGGER.error(e.getMessage(),e);
+       }
+       return null;
+    }
+
+    @Override
+    public ListInboundShipmentsResultVO listInboundShipmentsByNextToken(AmazonConfigInfo api, AmazonShipmentStatusListVO amazonShipmentStatusListVO) {
+        try {
+            ListInboundShipmentsResultVO resultVO = AmazonInboundClient.listInboundShipmentsByNextToken(api, amazonShipmentStatusListVO);
+            return resultVO;
+        }catch (Exception e){
+            LOGGER.error(e.getMessage(),e);
+        }
+        return null;
+    }
+}

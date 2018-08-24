@@ -1,0 +1,283 @@
+package com.itecheasy.core.amazon.isRealIvokeAmazon;
+
+import com.amazon.client.AmazonInboundClient;
+import com.amazon.client.AmazonReportClient;
+import com.amazonaws.mws.MarketplaceWebServiceException;
+import com.itecheasy.common.util.CollectionUtils;
+import com.itecheasy.core.amazon.AmazonConfigInfo;
+import com.itecheasy.core.amazon.getReportResult.AmazonStockReportVO;
+import com.itecheasy.core.amazon.getReportResult.GetReportListResultVO;
+import com.itecheasy.core.amazon.getReportResult.GetReportRequestListResultVO;
+import com.itecheasy.core.amazon.getReportResult.RequestReportResultVO;
+import com.itecheasy.core.amazon.getReportvo.GetReportListVO;
+import com.itecheasy.core.amazon.getReportvo.GetReportRequestListVO;
+import com.itecheasy.core.amazon.getReportvo.RequestReportVO;
+import com.itecheasy.core.amazon.isRealIvokeAmazon.resolveAmazonReport.ResolutionReportFile;
+import org.apache.log4j.Logger;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.ContextLoader;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.security.ProtectionDomain;
+import java.util.*;
+
+/**
+ * @Auther: liteng
+ * @Date: 2018/7/14 16:34
+ * @Description:
+ */
+public class RealGetStockReportFromAmazonImpl implements IsRealGetStockReportFromAmazon {
+    private static final Logger LOGGER = Logger.getLogger(RealGetStockReportFromAmazonImpl.class);
+    private Map<String ,ResolutionReportFile> resolutionReportFileMap = resolutionReportFileMap=new HashMap<String, ResolutionReportFile>();
+    private ResolutionReportFile resolutionReportFile;
+
+    public void setResolutionReportFileMap(Map<String, ResolutionReportFile> resolutionReportFileMap) {
+        this.resolutionReportFileMap = resolutionReportFileMap;
+    }
+
+    /**
+     * 初始化方法
+     */
+    public void initResolutionReportFile(){
+//        getResolutionReportFileBean("_GET_FBA_INVENTORY_AGED_DATA_");
+//		ApplicationContext act = ContextLoader.getCurrentWebApplicationContext();
+//		FileOutputOriginalVersionFactory ultimateGetReportFactory = (FileOutputOriginalVersionFactory) act.getBean("ultimateGetReportFactory");
+//		ResolutionReportFile inventoryAged = ultimateGetReportFactory.getAmazonReportType("inventoryAged");
+    }
+
+    /**
+     * 切换bean
+     * @param str 报告的枚举类型来动态切换bean
+     */
+    private void getResolutionReportFileBean(String str){
+        if (GetReportType.获取亚马逊库龄报告.enumType.equals(str)){
+            LOGGER.error("bean cast to resolutionInventoryAgedItem");
+           this.resolutionReportFile =  resolutionReportFileMap.get("resolutionInventoryAgedItem");
+        }else if (GetReportType.获取亚马逊商品库存报告.enumType.equals(str)){
+            LOGGER.error("bean cast to amazonStockItemReport");
+            this.resolutionReportFile =  resolutionReportFileMap.get("amazonStockItemReport");
+        }else {
+            LOGGER.error("ResolutionReportFileBean inject false please check ");
+        }
+    }
+
+
+
+
+    @Override
+    public synchronized List<String> getReportAllResult(RequestReportVO step1VO, AmazonConfigInfo api) throws MarketplaceWebServiceException, InterruptedException, IOException {
+        //step first   返回一个ReportRequestId
+        RequestReportResultVO step1Result = AmazonReportClient.requestReport(step1VO,api);
+        List<String> ids = new ArrayList<String>();
+        ids.add(step1Result.getReportRequestId());  //一个枚举对应一个id
+
+        //step 2
+        GetReportRequestListVO step2VO = new GetReportRequestListVO();
+        step2VO.setIds(ids);
+        GetReportRequestListResultVO reportRequest = AmazonReportClient.getReportRequestList(step2VO,api,5);
+
+        //收集step2.0
+        List<GetReportRequestListResultVO> allStep2Result = new ArrayList<GetReportRequestListResultVO>();
+        allStep2Result.add(reportRequest);
+
+        //step 2.1   考虑到返回nextToken的情况
+        boolean hasNext1 = reportRequest.isHasNext();
+        String token1 =reportRequest.getNextToken();
+        while (hasNext1){
+            GetReportRequestListResultVO step2_1Result = AmazonReportClient.getReportRequestListByNextToken(token1,api);
+            token1 = step2_1Result.getNextToken();
+            hasNext1 = step2_1Result.isHasNext();
+            allStep2Result.add(step2_1Result); //收集step3next
+        }
+
+        List<String> step3IdList = new ArrayList<String>();
+        List<String> genIdList = new ArrayList<String>();
+        for (GetReportRequestListResultVO step2Result : allStep2Result) {
+            if (step2Result!=null &&  step2Result.getGeneratedReportIdList()!=null &&
+                    step2Result.getGeneratedReportIdList().size()>0){
+                genIdList.addAll(step2Result.getGeneratedReportIdList());
+            } else if (step2Result!=null && step2Result.getReportRequestIdList()!=null &&
+                    step2Result.getReportRequestIdList().size()>0) {
+                step3IdList.addAll(step2Result.getReportRequestIdList());
+            }
+        }
+
+        //step 3   调用这个api是因为有些订单没有GeneratedReportId
+        //集合所有第二部的参数
+        List<String> allstep3_result =new ArrayList<String>();
+        if(step3IdList.size()>0) {
+            List<String> step3Param = new ArrayList<String>(step3IdList);
+            GetReportListVO vo = new GetReportListVO();  //封装给step3调用
+            vo.setReportRequestIdList(step3Param);
+            LOGGER.error("step3Param:" + step3Param);
+            GetReportListResultVO step3Result = AmazonReportClient.getReportList(vo, api);//调用amazon step3
+
+            //收集step3
+           allstep3_result.addAll(step3Result.getReportIdList());
+
+            //step 3.1   考虑到返回nextToken的情况
+            boolean hasNext = step3Result.isHasNext();
+            String token = step3Result.getNextToken();
+            while (hasNext) {
+                GetReportListResultVO step3_1Result = AmazonReportClient.getReportListByNextToken(token, api);
+                token = step3_1Result.getNextToken();
+                hasNext = step3_1Result.isHasNext();
+                //收集step3next
+                allstep3_result.addAll(step3_1Result.getReportIdList());
+            }
+        }
+        allstep3_result.addAll(genIdList);
+
+
+        //生成报告
+        //step 2 和2.1的GeneratedReportId当为参数，或者step 3中生成的ReportId作为参数
+        //step 4   如果有GeneratedReportId就可以直接生成报告了
+        List<String> lastReportPathList = new ArrayList<String>();
+        LOGGER.error("lastReportPathList："+allstep3_result);
+
+        for (String lastParam : allstep3_result) {
+            String report = AmazonReportClient.getReport(lastParam, api);
+            lastReportPathList.add(report);
+        }
+
+        return lastReportPathList;
+    }
+
+
+    /**
+     * decide determine edition
+     * 决定版，返回json
+     * @param step1VO
+     * @param api
+     * @return
+     * @throws MarketplaceWebServiceException
+     * @throws InterruptedException
+     * @throws IOException
+     */
+    @Override
+    public String getReportAllResultUltimate(RequestReportVO step1VO, AmazonConfigInfo api) throws MarketplaceWebServiceException, InterruptedException, IOException {
+        LOGGER.info("getReportStock step 1------init success");
+
+        //call amazon return 文件路径
+        List<String> allAbsolutePath = callAmazonGetReport(step1VO, api);
+
+        //需要用Spring工厂代替
+        getResolutionReportFileBean(step1VO.getReportType());
+
+        if (CollectionUtils.isNotEmpty(allAbsolutePath)) {
+            Map<String, Integer> reportIndex = this.resolutionReportFile.getReportIndex(allAbsolutePath.get(0));
+            String toJson = this.resolutionReportFile.FileToJson(allAbsolutePath, step1VO.getShopId(), reportIndex);
+            LOGGER.error("getReportStock step3 transfer object success and returning to OSMS");
+            return toJson;
+        }
+
+        LOGGER.error("has no read json data ");
+        return null;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
+     *
+     * @param step1VO
+     * @param api
+     * @return  return list txt file path
+     * @throws MarketplaceWebServiceException
+     * @throws InterruptedException
+     * @throws IOException
+     */
+    public List<String> callAmazonGetReport(RequestReportVO step1VO, AmazonConfigInfo api) throws MarketplaceWebServiceException, InterruptedException, IOException {
+        //step first   返回一个ReportRequestId
+        RequestReportResultVO step1Result = AmazonReportClient.requestReport(step1VO, api);
+        List<String> ids = new ArrayList<String>();
+        ids.add(step1Result.getReportRequestId());  //一个枚举对应一个id
+
+        //step 2
+        GetReportRequestListVO step2VO = new GetReportRequestListVO();
+        step2VO.setIds(ids);
+        GetReportRequestListResultVO reportRequest = AmazonReportClient.getReportRequestList(step2VO, api, 5);
+
+        //收集step2.0
+        List<GetReportRequestListResultVO> allStep2Result = new ArrayList<GetReportRequestListResultVO>();
+        allStep2Result.add(reportRequest);
+
+        //step 2.1   考虑到返回nextToken的情况
+        boolean hasNext1 = reportRequest.isHasNext();
+        String token1 = reportRequest.getNextToken();
+        while (hasNext1) {
+            GetReportRequestListResultVO step2_1Result = AmazonReportClient.getReportRequestListByNextToken(token1, api);
+            token1 = step2_1Result.getNextToken();
+            hasNext1 = step2_1Result.isHasNext();
+            allStep2Result.add(step2_1Result); //收集step3next
+        }
+
+        List<String> step3IdList = new ArrayList<String>();
+        List<String> genIdList = new ArrayList<String>();
+        for (GetReportRequestListResultVO step2Result : allStep2Result) {
+            if (step2Result != null && step2Result.getGeneratedReportIdList() != null &&
+                    step2Result.getGeneratedReportIdList().size() > 0) {
+                genIdList.addAll(step2Result.getGeneratedReportIdList());
+            } else if (step2Result != null && step2Result.getReportRequestIdList() != null &&
+                    step2Result.getReportRequestIdList().size() > 0) {
+                step3IdList.addAll(step2Result.getReportRequestIdList());
+            }
+        }
+
+        //step 3   调用这个api是因为有些订单没有GeneratedReportId
+        //集合所有第二部的参数
+        List<String> allstep3_result = new ArrayList<String>();
+        if (step3IdList.size() > 0) {
+            List<String> step3Param = new ArrayList<String>(step3IdList);
+            GetReportListVO vo = new GetReportListVO();  //封装给step3调用
+            vo.setReportRequestIdList(step3Param);
+            LOGGER.error("step3Param:" + step3Param);
+            GetReportListResultVO step3Result = AmazonReportClient.getReportList(vo, api);//调用amazon step3
+
+            //收集step3
+            allstep3_result.addAll(step3Result.getReportIdList());
+
+            //step 3.1   考虑到返回nextToken的情况
+            boolean hasNext = step3Result.isHasNext();
+            String token = step3Result.getNextToken();
+            while (hasNext) {
+                GetReportListResultVO step3_1Result = AmazonReportClient.getReportListByNextToken(token, api);
+                token = step3_1Result.getNextToken();
+                hasNext = step3_1Result.isHasNext();
+                //收集step3next
+                allstep3_result.addAll(step3_1Result.getReportIdList());
+            }
+        }
+        allstep3_result.addAll(genIdList);
+
+
+        //生成报告
+        //  step 2 和2.1的GeneratedReportId当为参数，或者step 3中生成的ReportId作为参数
+        //step 4   如果有GeneratedReportId就可以直接生成报告了
+        List<String> allAbsolutePath = new ArrayList<String>();
+        LOGGER.error("allAbsolutePath：" + allstep3_result);
+
+        //			String resultDerict = DeployProperties.getInstance().getProperty("amazon.result.filePath");
+//			File file = new File(resultDerict + step1VO.getReportType() +"\\" +api.getSellerID()+"\\"+ DateUtils.convertDate(new Date(), "yyyyMMddHHmmss") + ".txt");
+
+
+        for (String lastParam : allstep3_result) {
+            String report = AmazonReportClient.getReport(lastParam, api);
+            allAbsolutePath.add(report);
+        }
+
+        LOGGER.info("getReportStock step2，system has read from amazon download report and transfer to backup file txt success . file absolute path" + allAbsolutePath);
+
+        return allAbsolutePath;
+    }
+
+}

@@ -1,0 +1,59 @@
+package com.itecheasy.core.amazon.isRealIvokeAmazon;
+
+import com.amazon.client.AmazonReportClient;
+import com.amazonaws.mws.MarketplaceWebServiceException;
+import com.itecheasy.core.amazon.AmazonConfigInfo;
+import com.itecheasy.core.amazon.getReportResult.AmazonStockReportVO;
+import com.itecheasy.core.amazon.vo.RequestReportVO;
+import com.itecheasy.core.amazon.vo.AmazonInventoryAgedReportVO;
+
+import java.io.IOException;
+import java.util.List;
+
+/**
+ * @Auther: liteng
+ * @Date: 2018/7/14 16:32
+ * @Description:
+ */
+public interface IsRealGetStockReportFromAmazon {
+    public enum GetReportType{
+        获取亚马逊商品库存报告(0,"_GET_FBA_MYI_UNSUPPRESSED_INVENTORY_DATA_"),
+        获取亚马逊库龄报告(1,"_GET_FBA_INVENTORY_AGED_DATA_");
+        int code;
+        String enumType;
+
+        GetReportType(int code, String enumType) {
+            this.code = code;
+            this.enumType = enumType;
+        }
+    }
+
+    /**
+     * 老版本的，返回的是文件的路径
+     * @param step1VO
+     * @param api
+     * @return
+     * @throws MarketplaceWebServiceException
+     * @throws InterruptedException
+     * @throws IOException
+     */
+    List<String> getReportAllResult(RequestReportVO step1VO, AmazonConfigInfo api) throws MarketplaceWebServiceException, InterruptedException, IOException;
+
+
+    /**
+     * 返回的是json串
+     * @param step1VO
+     * @param api
+     * @return
+     * @throws MarketplaceWebServiceException
+     * @throws InterruptedException
+     * @throws IOException
+     */
+    String getReportAllResultUltimate(RequestReportVO step1VO, AmazonConfigInfo api) throws MarketplaceWebServiceException, InterruptedException, IOException;
+
+
+    //读取txt报告文件
+//    @Deprecated
+//    List<AmazonInventoryAgedReportVO> fileOutputOriginalVersion(List<String> pathnameList,Integer shopId);
+
+}

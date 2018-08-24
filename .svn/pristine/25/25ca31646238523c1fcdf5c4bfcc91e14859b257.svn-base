@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xmlns:cxf="http://cxf.apache.org/core"
+	xsi:schemaLocation="
+     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+     http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd 
+	http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd"
+	default-autowire="byName" default-lazy-init="true">
+
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath*:deploy_config.properties</value>
+			</list>
+		</property>
+	</bean>
+
+
+
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-extension-soap.xml" />
+	<import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+	
+
+<!-- 	<bean id="SpringBeanUtils" class="com.amazon.test.SpringBeanUtils" ></bean> -->
+	<bean id="amazon" class="com.amazon.test.Amazon"></bean>
+
+
+	<bean id="test" class="com.amazon.test.TestImpl"></bean>
+
+	<jaxws:endpoint id="testWS" implementor="#test"
+		address="/osms_am.test">
+	</jaxws:endpoint>
+	
+	<jaxws:endpoint id="amazonWS" implementor="#amazonWebService"
+		address="/osms_am.amazon">
+	</jaxws:endpoint>
+	
+	<bean id="amazonInboundWebService" class="com.itecheasy.core.amazon.AmazonInboundWebServiceImpl" />
+	
+	<jaxws:endpoint id="amazonInboundWS" implementor="#amazonInboundWebService"
+		address="/osms_am.amazonInbound">
+	</jaxws:endpoint>
+
+	<!--<bean id="amazonReportWebService" class="com.itecheasy.core.amazon.AmazonReportWebServiceImpl" />-->
+	<!--<jaxws:endpoint id="amazonReportWS" implementor="#amazonReportWebService"-->
+					<!--address="/osms_am.amazonReport">-->
+	<!--</jaxws:endpoint>-->
+
+	<bean id="baseOrder" class="com.itecheasy.core.amazon.isRealIvokeAmazon.Base" abstract="true">
+	</bean>
+
+
+	<bean id="mockIsRealGetStockReportFromAmazon"
+		  class="com.itecheasy.core.amazon.isRealIvokeAmazon.MockGetStockReportFromAmazonImpl" parent="baseOrder">
+	</bean>
+
+	<bean id="realGetStockReportFromAmazon"
+		  class="com.itecheasy.core.amazon.isRealIvokeAmazon.RealGetStockReportFromAmazonImpl" parent="baseOrder"/>
+
+	<bean id="mockListInboundShipments"
+		  class="com.itecheasy.core.amazon.isRealIvokeAmazon.MockListInboundShipmentsImpl" parent="baseOrder"/>
+
+	<bean id="realListInboundShipments"
+		  class="com.itecheasy.core.amazon.isRealIvokeAmazon.RealListInboundShipmentsImpl" parent="baseOrder"/>
+
+
+	<bean id="amazonWebService" class="com.itecheasy.core.amazon.AmazonWebServiceImpl" init-method="initInvokeGetStockFromAmazon">
+		<property name="isRealInvokeAmazonMap">
+			<map>
+				<entry key="mockGetStockReportFromAmazonBean" value-ref="mockIsRealGetStockReportFromAmazon"/>
+				<entry key="realGetStockReportFromAmazonBean" value-ref="realGetStockReportFromAmazon"/>
+			</map>
+		</property>
+		<property name="isRealListInboundShipmentsMap">
+			<map>
+				<entry key="mockListInboundShipmentsBean" value-ref="mockListInboundShipments"/>
+				<entry key="realListInboundShipmentsBean" value-ref="realListInboundShipments"/>
+			</map>
+		</property>
+	</bean>
+
+
+	<!-- 用于打印日志的参数和返回值 -->
+	<!--<bean id="sysLogAspect" class="com.printMethod.LoggerNew"/>-->
+	<!--<aop:config>-->
+		<!--<aop:aspect ref="sysLogAspect">-->
+			<!--<aop:pointcut expression="execution(* com.itecheasy.core.amazon..*.*(..)) and-->
+			 	<!--@annotation(com.printMethod.annotations.LoggerNameDescription)" id="sysLogPointcut"/>-->
+			<!--<aop:around method="around" pointcut-ref="sysLogPointcut"/>-->
+		<!--</aop:aspect>-->
+	<!--</aop:config>-->
+
+
+
+
+
+</beans>

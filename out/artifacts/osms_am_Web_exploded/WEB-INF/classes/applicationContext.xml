@@ -18,7 +18,6 @@
 		<property name="locations">
 			<list>
 				<value>classpath*:deploy_config.properties</value>
-				<value>classpath*:other_config.properties</value>
 			</list>
 		</property>
 	</bean>
@@ -55,15 +54,39 @@
 					<!--address="/osms_am.amazonReport">-->
 	<!--</jaxws:endpoint>-->
 
-	<bean id="baseOrder" class="com.itecheasy.core.amazon.isRealIvokeAmazon.Base" abstract="true">
-	</bean>
+	<bean id="baseOrder" class="com.itecheasy.core.amazon.isRealIvokeAmazon.Base" abstract="true"/>
+
 
 	<bean id="mockIsRealGetStockReportFromAmazon"
 		  class="com.itecheasy.core.amazon.isRealIvokeAmazon.MockGetStockReportFromAmazonImpl" parent="baseOrder">
+		<property name="resolutionReportFileMap">
+			<map>
+				<entry key="resolutionInventoryAgedItem" value-ref="resolutionInventoryAgedItemResolutionReportImpl"/>	<!--同步亚马逊库龄-->
+				<entry key="amazonStockItemReport" value-ref="amazonStockItemReportFileToVoJsonImpl"/>	<!--同步亚马逊仓库库存-->
+			</map>
+		</property>
 	</bean>
 
+
+
+	<bean id="resolutionInventoryAgedItemResolutionReportImpl"
+		  class="com.itecheasy.core.amazon.isRealIvokeAmazon.resolveAmazonReport.ResolutionInventoryAgedItemResolutionReportImpl"/>
+
+	<bean id="amazonStockItemReportFileToVoJsonImpl"
+		  class="com.itecheasy.core.amazon.isRealIvokeAmazon.resolveAmazonReport.AmazonStockItemReportFileToVoJsonImpl"/>
+
 	<bean id="realGetStockReportFromAmazon"
-		  class="com.itecheasy.core.amazon.isRealIvokeAmazon.MockGetStockReportFromAmazonImpl" parent="baseOrder"/>
+		  class="com.itecheasy.core.amazon.isRealIvokeAmazon.RealGetStockReportFromAmazonImpl" parent="baseOrder" init-method="initResolutionReportFile">
+		<property name="resolutionReportFileMap">
+			<map>
+				<entry key="resolutionInventoryAgedItem" value-ref="resolutionInventoryAgedItemResolutionReportImpl"/>	<!--同步亚马逊库龄-->
+				<entry key="amazonStockItemReport" value-ref="amazonStockItemReportFileToVoJsonImpl"/>	<!--同步亚马逊仓库库存-->
+
+			</map>
+		</property>
+	</bean>
+
+
 
 
 	<bean id="mockListInboundShipments"
@@ -90,16 +113,21 @@
 
 
 	<!-- 用于打印日志的参数和返回值 -->
-	<bean id="sysLogAspect" class="com.printMethod.LoggerNew"/>
-	<aop:config>
-		<aop:aspect ref="sysLogAspect">
-			<aop:pointcut expression="execution(* com.itecheasy.core.amazon..*.*(..)) and
-			 	@annotation(com.printMethod.annotations.LoggerNameDescription)" id="sysLogPointcut"/>
-			<aop:around method="around" pointcut-ref="sysLogPointcut"/>
-		</aop:aspect>
-	</aop:config>
+	<!--<bean id="sysLogAspect" class="com.printMethod.LoggerNew"/>-->
+	<!--<aop:config>-->
+		<!--<aop:aspect ref="sysLogAspect">-->
+			<!--<aop:pointcut expression="execution(* com.itecheasy.core.amazon..*.*(..)) and-->
+			 	<!--@annotation(com.printMethod.annotations.LoggerNameDescription)" id="sysLogPointcut"/>-->
+			<!--<aop:around method="around" pointcut-ref="sysLogPointcut"/>-->
+		<!--</aop:aspect>-->
+	<!--</aop:config>-->
 
 
+    <bean id="fileOutputOriginalVersionFactory" class="com.itecheasy.core.amazon.isRealIvokeAmazon.resolveAmazonReport.FileOutputOriginalVersionFactory"/>
+    <!-- 即先需要配置工厂本身，再引用工厂的实例方法来配置bean的实例 -->
+    <bean id="ultimateGetReportFactory" factory-bean="fileOutputOriginalVersionFactory" factory-method="getAmazonReportType">
+        <constructor-arg value="beanName"/>
+    </bean>
 
 
 
