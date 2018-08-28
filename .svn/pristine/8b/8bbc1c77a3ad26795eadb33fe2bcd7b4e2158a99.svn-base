@@ -206,17 +206,13 @@ public class RealGetStockReportFromAmazonImpl implements IsRealGetStockReportFro
      */
     @Override
     public ALLReportUltimateVO getReportAllResultUltimateRTX(RequestReportVO step1VO, AmazonConfigInfo api) throws MarketplaceWebServiceException, InterruptedException, IOException {
-
-        //切换bean，不同的报告文件不同的bean解析方式
-        ResolutionReportFile resolutionReportFileBeanRTX = getResolutionReportFileBeanRTX(step1VO.getReportType());
-
-        LOGGER.info("getReportAllResultUltimateRTX callAmazonSyncReportUltimateRTX method start step first "+step1VO.toString());
-
         //调用亚马逊，获取报告信息
         List<ByteArrayOutputStream> byteArrayOutputStreams = AmazonReportClient.callAmazonSyncReportUltimateRTX(step1VO, api);
 
         LOGGER.info("getReportAllResultUltimateRTX callAmazonSyncReportUltimateRTX method has success done step first "+step1VO.toString());
 
+        //切换bean，不同的报告文件不同的bean解析方式
+        ResolutionReportFile resolutionReportFileBeanRTX = getResolutionReportFileBeanRTX(step1VO.getReportType());
 
         //基本路径
         String baseDir = CACHEDIR + step1VO.getReportType() + "\\" + api.getSellerID() + "\\";

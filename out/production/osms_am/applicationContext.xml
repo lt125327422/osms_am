@@ -59,10 +59,12 @@
 
 	<bean id="mockIsRealGetStockReportFromAmazon"
 		  class="com.itecheasy.core.amazon.isRealIvokeAmazon.MockGetStockReportFromAmazonImpl" parent="baseOrder">
-		<property name="resolutionReportFileMap">
+		<property name="resolutionReportFileMap" >
 			<map>
 				<entry key="resolutionInventoryAgedItem" value-ref="resolutionInventoryAgedItemResolutionReportImpl"/>	<!--同步亚马逊库龄-->
 				<entry key="amazonStockItemReport" value-ref="amazonStockItemReportFileToVoJsonImpl"/>	<!--同步亚马逊仓库库存-->
+				<entry key="logisticsForecastCostReport" value-ref="logisticsForecastCostReportImpl"/>	<!--同步亚马逊物流预计费用报告-->
+
 			</map>
 		</property>
 	</bean>
