@@ -4,13 +4,7 @@ import com.amazon.client.AmazonClient;
 import com.amazon.client.AmazonInboundClient;
 import com.amazon.client.AmazonInventoryClient;
 import com.amazon.client.AmazonReportClient;
-import com.amazon.client.AmazonReportNewClient;
-import com.amazonaws.mws.MarketplaceWebServiceClient;
 import com.amazonaws.mws.MarketplaceWebServiceException;
-import com.amazonaws.mws.model.GetReportListResult;
-import com.amazonaws.mws.model.GetReportRequestListResult;
-import com.amazonaws.mws.model.ReportInfo;
-import com.amazonaws.mws.model.ReportRequestInfo;
 import com.amazonservices.mws.FulfillmentInboundShipment._2010_10_01.model.*;
 import com.amazonservices.mws.FulfillmentInventory._2010_10_01.FBAInventoryServiceMWSClient;
 import com.amazonservices.mws.FulfillmentInventory._2010_10_01.model.*;
@@ -21,6 +15,8 @@ import com.amazonservices.mws.orders._2013_09_01.model.OrderItem;
 import com.itecheasy.common.util.BeanUtils;
 import com.itecheasy.common.util.CollectionUtils;
 import com.itecheasy.common.util.DateUtils;
+
+import com.itecheasy.core.amazon.vo.RequestReportVO;
 import com.itecheasy.core.amazon.isRealIvokeAmazon.Base;
 import com.itecheasy.core.amazon.vo.*;
 import com.printMethod.annotations.LoggerNameDescription;
@@ -32,9 +28,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author wanghw
@@ -470,66 +464,6 @@ public class AmazonWebServiceImpl extends Base implements AmazonWebService {
             throw exp;
         }
     }
-
-	@Override
-	public ReportVO getAmazonReport(AmazonConfigInfo api, ReportConfigVO reportConfigVO) throws Exception {
-		ReportVO reportVO = new ReportVO();
-		String sellerId = api.getSellerID();
-		MarketplaceWebServiceClient client = AmazonReportNewClient.getClient(api);
-		ReportRequestInfo requestReport = AmazonReportNewClient.requestReport(client, api, reportConfigVO);
-		//请求报告
-		String reportRequestId = requestReport.getReportRequestId();
-		List<String> requestReportIds = new ArrayList<String>();
-		requestReportIds.add(reportRequestId);
-		//获取报告列表
-		//先让当前线程睡眠一下，给生成报告预留一点时间
-		Thread.sleep(15000);
-		Set<String> noGeneratedReportId = new HashSet<String>();
-		//最多循环5次
-		boolean done = false;
-		long startTime = System.currentTimeMillis();
-		while(!done){
-			GetReportRequestListResult reportRequestList = AmazonReportNewClient.getReportRequestList(client, sellerId, requestReportIds);
-			for (ReportRequestInfo reportRequestInfo : reportRequestList.getReportRequestInfoList()) {
-				if("_DONE_".equalsIgnoreCase(reportRequestInfo.getReportProcessingStatus())){
-					if(reportRequestInfo.getGeneratedReportId()!=null){
-						//由于一次请求一个报告，不考虑分页
-						reportVO.setFile(AmazonReportNewClient.getReport(client, sellerId, reportRequestInfo.getGeneratedReportId()));
-						reportVO.setMessage(reportRequestInfo.getReportProcessingStatus());
-						return reportVO;
-					}else{
-						noGeneratedReportId.add(reportRequestInfo.getReportRequestId());
-					}
-				}else if("_CANCELLED_".equalsIgnoreCase(reportRequestInfo.getReportProcessingStatus())){
-					reportVO.setMessage(reportRequestInfo.getReportProcessingStatus());
-					done = true;
-				}else if("_DONE_NO_DATA_".equalsIgnoreCase(reportRequestInfo.getReportProcessingStatus())){
-					done = true;
-					reportVO.setMessage(reportRequestInfo.getReportProcessingStatus());
-				}
-			}
-			if((System.currentTimeMillis() - startTime) > reportConfigVO.getMaxWaitingSeconds()*1000){
-				throw new RuntimeException("osms_am has waited amazon for "+reportConfigVO.getMaxWaitingSeconds()+" seconds, but the report has not done yet");
-			}
-			//getReportRequestList最大限额45秒一个
-			if(!done){
-				Thread.sleep(46000);
-			}
-		};
-		
-		if(noGeneratedReportId.size()>0){
-			ArrayList<String> noGeneratedReportIdlist = new ArrayList<String>();
-			noGeneratedReportIdlist.addAll(noGeneratedReportId);
-			GetReportListResult reportList = AmazonReportNewClient.getReportList(client, sellerId, noGeneratedReportIdlist);
-			for (ReportInfo reportInfo : reportList.getReportInfoList()) {
-				reportVO.setFile(AmazonReportNewClient.getReport(client, sellerId, reportInfo.getReportId()));
-				reportVO.setMessage("_DONE_");
-				return reportVO;
-			}
-		}
-		
-		return reportVO;
-	}
 
 
 
